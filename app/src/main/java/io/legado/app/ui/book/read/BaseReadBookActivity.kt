@@ -57,6 +57,7 @@ abstract class BaseReadBookActivity :
 
     override val binding by viewBinding(ActivityBookReadBinding::inflate)
     override val viewModel by viewModels<ReadBookViewModel>()
+    protected open val useWatchReaderUi: Boolean = false
     protected val menuLayoutIsVisible
         get() = bottomDialog > 0 || binding.readMenu.isVisible || binding.searchMenu.bottomMenuVisible
 
@@ -101,7 +102,7 @@ abstract class BaseReadBookActivity :
                 title = "选择书籍所在文件夹"
             }
         }
-        if (!LocalConfig.readHelpVersionIsLast) {
+        if (!useWatchReaderUi && !LocalConfig.readHelpVersionIsLast) {
             if (isTv) {
                 showCustomPageKeyConfig()
             } else {

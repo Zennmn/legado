@@ -16,6 +16,7 @@ object WatchReaderDefaults {
         appCtx.putPrefBoolean(PreferKey.showMangaUi, false)
         appCtx.putPrefBoolean(PreferKey.showDiscovery, false)
         appCtx.putPrefBoolean(PreferKey.showRss, false)
+        appCtx.putPrefBoolean(PreferKey.textSelectAble, false)
         appCtx.putPrefBoolean(PreferKey.autoRefresh, false)
         appCtx.putPrefBoolean(PreferKey.autoCheckNewBackup, false)
 

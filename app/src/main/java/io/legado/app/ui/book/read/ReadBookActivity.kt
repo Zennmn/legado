@@ -13,7 +13,6 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import androidx.activity.addCallback
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.get
@@ -35,7 +34,6 @@ import io.legado.app.data.entities.BookProgress
 import io.legado.app.data.entities.BookSource
 import io.legado.app.exception.NoStackTraceException
 import io.legado.app.help.AppWebDav
-import io.legado.app.help.IntentData
 import io.legado.app.help.TTS
 import io.legado.app.help.book.BookHelp
 import io.legado.app.help.book.ContentProcessor
@@ -73,14 +71,11 @@ import io.legado.app.ui.about.AppLogDialog
 import io.legado.app.ui.book.bookmark.BookmarkDialog
 import io.legado.app.ui.book.changesource.ChangeBookSourceDialog
 import io.legado.app.ui.book.changesource.ChangeChapterSourceDialog
-import io.legado.app.ui.book.info.BookInfoActivity
 import io.legado.app.ui.book.read.config.AutoReadDialog
 import io.legado.app.ui.book.read.config.BgTextConfigDialog.Companion.BG_COLOR
 import io.legado.app.ui.book.read.config.BgTextConfigDialog.Companion.TEXT_ACCENT_COLOR
 import io.legado.app.ui.book.read.config.BgTextConfigDialog.Companion.TEXT_COLOR
-import io.legado.app.ui.book.read.config.MoreConfigDialog
 import io.legado.app.ui.book.read.config.ReadAloudDialog
-import io.legado.app.ui.book.read.config.ReadStyleDialog
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_COLOR
 import io.legado.app.ui.book.read.config.TipConfigDialog.Companion.TIP_DIVIDER_COLOR
 import io.legado.app.ui.book.read.page.ContentTextView
@@ -90,18 +85,14 @@ import io.legado.app.ui.book.read.page.entities.PageDirection
 import io.legado.app.ui.book.read.page.entities.TextPage
 import io.legado.app.ui.book.read.page.provider.ChapterProvider
 import io.legado.app.ui.book.read.page.provider.LayoutProgressListener
-import io.legado.app.ui.book.searchContent.SearchContentActivity
 import io.legado.app.ui.book.searchContent.SearchResult
 import io.legado.app.model.SourceCallBack
 import io.legado.app.ui.book.source.edit.BookSourceEditActivity
-import io.legado.app.ui.book.toc.TocActivityResult
 import io.legado.app.ui.book.toc.rule.TxtTocRuleDialog
 import io.legado.app.ui.browser.WebViewActivity
 import io.legado.app.ui.dict.DictDialog
 import io.legado.app.ui.file.HandleFileContract
 import io.legado.app.ui.login.SourceLoginActivity
-import io.legado.app.ui.replace.ReplaceRuleActivity
-import io.legado.app.ui.replace.edit.ReplaceEditActivity
 import io.legado.app.ui.widget.PopupAction
 import io.legado.app.ui.widget.dialog.PhotoDialog
 import io.legado.app.utils.ACache
@@ -109,13 +100,11 @@ import io.legado.app.utils.Debounce
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.StartActivityContract
-import io.legado.app.utils.applyOpenTint
 import io.legado.app.utils.buildMainHandler
 import io.legado.app.utils.dismissDialogFragment
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.getPrefString
 import io.legado.app.utils.hexString
-import io.legado.app.utils.iconItemOnLongClick
 import io.legado.app.utils.invisible
 import io.legado.app.utils.isAbsUrl
 import io.legado.app.utils.isTrue
@@ -125,7 +114,6 @@ import io.legado.app.utils.observeEvent
 import io.legado.app.utils.observeEventSticky
 import io.legado.app.utils.postEvent
 import io.legado.app.utils.showDialogFragment
-import io.legado.app.utils.showHelp
 import io.legado.app.utils.startActivity
 import io.legado.app.utils.startActivityForBook
 import io.legado.app.utils.sysScreenOffTime
@@ -144,8 +132,10 @@ import androidx.lifecycle.Lifecycle
 import com.script.rhino.runScriptWithContext
 import io.legado.app.model.analyzeRule.AnalyzeUrl.Companion.paramPattern
 import io.legado.app.ui.login.SourceLoginJsExtensions
+import io.legado.app.ui.book.read.config.WatchReaderSettingsDialog
 import io.legado.app.ui.watch.EdgeSwipeBackLayout
 import io.legado.app.ui.watch.WatchReaderDefaults
+import io.legado.app.ui.watch.toc.WatchTocActivityResult
 
 /**
  * 阅读界面
@@ -156,7 +146,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     TextActionMenu.CallBack,
     ContentTextView.CallBack,
     PopupMenu.OnMenuItemClickListener,
-    ReadMenu.CallBack,
+    WatchReadMenu.CallBack,
     SearchMenu.CallBack,
     ReadAloudDialog.CallBack,
     ChangeBookSourceDialog.CallBack,
@@ -168,7 +158,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     LayoutProgressListener {
 
     private val tocActivity =
-        registerForActivityResult(TocActivityResult()) {
+        registerForActivityResult(WatchTocActivityResult()) {
             it?.let {
                 viewModel.openChapter(it[0] as Int, it[1] as Int)
             }
@@ -179,41 +169,6 @@ class ReadBookActivity : BaseReadBookActivity(),
                 viewModel.upBookSource {
                     upMenuView()
                 }
-            }
-        }
-    private val replaceActivity =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                viewModel.replaceRuleChanged()
-            }
-        }
-    private val searchContentActivity =
-        registerForActivityResult(StartActivityContract(SearchContentActivity::class.java)) {
-            val data = it.data ?: return@registerForActivityResult
-            val key = data.getLongExtra("key", System.currentTimeMillis())
-            val index = data.getIntExtra("index", 0)
-            val searchResult = IntentData.get<SearchResult>("searchResult$key")
-            val searchResultList = IntentData.get<List<SearchResult>>("searchResultList$key")
-            if (searchResult != null && searchResultList != null) {
-                viewModel.searchContentQuery = searchResult.query
-                binding.searchMenu.upSearchResultList(searchResultList)
-                isShowingSearchResult = true
-                viewModel.searchResultIndex = index
-                binding.searchMenu.updateSearchResultIndex(index)
-                binding.searchMenu.selectedSearchResult?.let { currentResult ->
-                    ReadBook.saveCurrentBookProgress() //退出全文搜索恢复此时进度
-                    skipToSearch(currentResult)
-                    showActionMenu()
-                }
-            }
-        }
-    private val bookInfoActivity =
-        registerForActivityResult(StartActivityContract(BookInfoActivity::class.java)) {
-            if (it.resultCode == RESULT_OK) {
-                setResult(RESULT_DELETED)
-                super.finish()
-            } else {
-                ReadBook.loadOrUpContent()
             }
         }
     private val selectImageDir = registerForActivityResult(HandleFileContract()) {
@@ -233,6 +188,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     }
     override val isInitFinish: Boolean get() = viewModel.isInitFinish
     override val isScroll: Boolean get() = binding.readView.isScroll
+    override val useWatchReaderUi: Boolean = true
     private val isAutoPage get() = binding.readView.isAutoPage
     override var isShowingSearchResult = false
     override var isSelectingSearchResult = false
@@ -271,8 +227,8 @@ class ReadBookActivity : BaseReadBookActivity(),
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         WatchReaderDefaults.apply()
+        super.onActivityCreated(savedInstanceState)
         (binding.root as EdgeSwipeBackLayout).setOnEdgeBack {
             finish()
         }
@@ -403,32 +359,19 @@ class ReadBookActivity : BaseReadBookActivity(),
     }
 
     override fun onCompatCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.book_read, menu)
-        menu.iconItemOnLongClick(R.id.menu_change_source) {
-            PopupMenu(this, it).apply {
-                inflate(R.menu.book_read_change_source)
-                this.menu.applyOpenTint(this@ReadBookActivity)
-                setOnMenuItemClickListener(this@ReadBookActivity)
-            }.show()
-        }
-        menu.iconItemOnLongClick(R.id.menu_refresh) {
-            PopupMenu(this, it).apply {
-                inflate(R.menu.book_read_refresh)
-                this.menu.applyOpenTint(this@ReadBookActivity)
-                setOnMenuItemClickListener(this@ReadBookActivity)
-            }.show()
-        }
-        binding.readMenu.refreshMenuColorFilter()
-        return super.onCompatCreateOptionsMenu(menu)
+        this.menu = menu
+        return false
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         this.menu = menu
-        upMenu()
-        return super.onPrepareOptionsMenu(menu)
+        return false
     }
 
     override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
+        if (watchLocalOnly) {
+            return false
+        }
         menu.findItem(R.id.menu_same_title_removed)?.isChecked =
             ReadBook.curTextChapter?.sameTitleRemoved == true
         return super.onMenuOpened(featureId, menu)
@@ -883,6 +826,10 @@ class ReadBookActivity : BaseReadBookActivity(),
      * 显示文本操作菜单
      */
     override fun showTextActionMenu() {
+        if (watchLocalOnly) {
+            binding.readView.cancelSelect()
+            return
+        }
         val navigationBarHeight =
             if (!ReadBookConfig.hideNavigationBar && navigationBarGravity == Gravity.BOTTOM)
                 binding.navigationBar.height else 0
@@ -906,6 +853,9 @@ class ReadBookActivity : BaseReadBookActivity(),
      * 文本选择菜单操作
      */
     override fun onMenuItemSelected(itemId: Int): Boolean {
+        if (watchLocalOnly) {
+            return true
+        }
         when (itemId) {
             R.id.menu_aloud -> when (AppConfig.contentSelectSpeakMod) {
                 1 -> lifecycleScope.launch {
@@ -926,21 +876,6 @@ class ReadBookActivity : BaseReadBookActivity(),
             }
 
             R.id.menu_replace -> {
-                val scopes = arrayListOf<String>()
-                ReadBook.book?.name?.let {
-                    scopes.add(it)
-                }
-                ReadBook.bookSource?.bookSourceUrl?.let {
-                    scopes.add(it)
-                }
-                val text = selectedText.lineSequence().map { it.trim() }.joinToString("\n")
-                replaceActivity.launch(
-                    ReplaceEditActivity.startIntent(
-                        this,
-                        pattern = text,
-                        scope = scopes.joinToString(";")
-                    )
-                )
                 return true
             }
 
@@ -1184,9 +1119,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     /**
      * 显示朗读菜单
      */
-    override fun showReadAloudDialog() {
-        showDialogFragment<ReadAloudDialog>()
-    }
+    override fun showReadAloudDialog() = Unit
 
     /**
      * 自动翻页
@@ -1220,21 +1153,12 @@ class ReadBookActivity : BaseReadBookActivity(),
         }
     }
 
-    override fun openBookInfoActivity() {
-        ReadBook.book?.let {
-            bookInfoActivity.launch {
-                putExtra("name", it.name)
-                putExtra("author", it.author)
-            }
-        }
-    }
+    override fun openBookInfoActivity() = Unit
 
     /**
      * 替换
      */
-    override fun openReplaceRule() {
-        replaceActivity.launch(Intent(this, ReplaceRuleActivity::class.java))
-    }
+    override fun openReplaceRule() = Unit
 
     /**
      * 打开目录
@@ -1248,19 +1172,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     /**
      * 打开搜索界面
      */
-    override fun openSearchActivity(searchWord: String?) {
-        val book = ReadBook.book ?: return
-        searchContentActivity.launch {
-            putExtra("bookUrl", book.bookUrl)
-            putExtra("searchWord", searchWord ?: viewModel.searchContentQuery)
-            putExtra("searchResultIndex", viewModel.searchResultIndex)
-            viewModel.searchResultList?.first()?.let {
-                if (it.query == viewModel.searchContentQuery) {
-                    IntentData.put("searchResultList", viewModel.searchResultList)
-                }
-            }
-        }
-    }
+    override fun openSearchActivity(searchWord: String?) = Unit
 
     /**
      * 禁用书源
@@ -1273,18 +1185,18 @@ class ReadBookActivity : BaseReadBookActivity(),
      * 显示阅读样式配置
      */
     override fun showReadStyle() {
-        showDialogFragment<ReadStyleDialog>()
+        showDialogFragment<WatchReaderSettingsDialog>()
     }
 
     /**
      * 显示更多设置
      */
     override fun showMoreSetting() {
-        showDialogFragment<MoreConfigDialog>()
+        showDialogFragment<WatchReaderSettingsDialog>()
     }
 
     override fun showSearchSetting() {
-        showDialogFragment<MoreConfigDialog>()
+        showDialogFragment<WatchReaderSettingsDialog>()
     }
 
     /**
@@ -1464,62 +1376,9 @@ class ReadBookActivity : BaseReadBookActivity(),
     /**
      * 朗读按钮
      */
-    override fun onClickReadAloud() {
-        autoPageStop()
-        when {
-            !BaseReadAloudService.isRun -> {
-                ReadAloud.upReadAloudClass()
-                val scrollPageAnim = ReadBook.pageAnim() == 3
-                if (scrollPageAnim) {
-                    val pos = binding.readView.getReadAloudPos()
-                    if (pos != null) {
-                        val (index, line) = pos
-                        if (ReadBook.durChapterIndex != index) {
-                            ReadBook.openChapter(index, line.chapterPosition, false) {
-                                ReadBook.readAloud(startPos = line.pagePosition)
-                            }
-                        } else {
-                            ReadBook.durChapterPos = line.chapterPosition
-                            ReadBook.readAloud(startPos = line.pagePosition)
-                        }
-                    } else {
-                        ReadBook.readAloud()
-                    }
-                } else {
-                    ReadBook.readAloud()
-                }
-            }
+    override fun onClickReadAloud() = Unit
 
-            BaseReadAloudService.pause -> {
-                val scrollPageAnim = ReadBook.pageAnim() == 3
-                if (scrollPageAnim && pageChanged) {
-                    pageChanged = false
-                    val pos = binding.readView.getReadAloudPos()
-                    if (pos != null) {
-                        val (index, line) = pos
-                        if (ReadBook.durChapterIndex != index) {
-                            ReadBook.openChapter(index, line.chapterPosition, false) {
-                                ReadBook.readAloud(startPos = line.pagePosition)
-                            }
-                        } else {
-                            ReadBook.durChapterPos = line.chapterPosition
-                            ReadBook.readAloud(startPos = line.pagePosition)
-                        }
-                    } else {
-                        ReadBook.readAloud()
-                    }
-                } else {
-                    ReadAloud.resume(this)
-                }
-            }
-
-            else -> ReadAloud.pause(this)
-        }
-    }
-
-    override fun showHelp() {
-        showHelp("readMenuHelp")
-    }
+    override fun showHelp() = Unit
 
     /**
      * 长按图片
@@ -1781,7 +1640,7 @@ class ReadBookActivity : BaseReadBookActivity(),
         if (!ReadBook.inBookshelf && !isChangingConfigurations) {
             viewModel.removeFromBookshelf(null)
         }
-        if (!BuildConfig.DEBUG) {
+        if (!watchLocalOnly && !BuildConfig.DEBUG) {
             Backup.autoBack(this)
         }
     }
