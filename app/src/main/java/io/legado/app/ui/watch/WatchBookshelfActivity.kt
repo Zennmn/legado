@@ -4,11 +4,15 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import io.legado.app.R
 import io.legado.app.base.VMBaseActivity
 import io.legado.app.constant.Theme
 import io.legado.app.databinding.ActivityWatchBookshelfBinding
+import io.legado.app.lib.permission.Permissions
+import io.legado.app.lib.permission.PermissionsCompat
 import io.legado.app.utils.gone
 import io.legado.app.utils.startActivityForBook
+import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
 import io.legado.app.utils.visible
 import kotlinx.coroutines.flow.catch
@@ -34,7 +38,20 @@ class WatchBookshelfActivity :
         WatchReaderDefaults.apply()
         initView()
         observeBooks()
-        viewModel.scanDownload()
+        requestStorageAndScan()
+    }
+
+    private fun requestStorageAndScan() {
+        PermissionsCompat.Builder()
+            .addPermissions(*Permissions.Group.STORAGE)
+            .rationale(R.string.tip_perm_request_storage)
+            .onGranted {
+                viewModel.scanDownload()
+            }
+            .onDenied {
+                toastOnUi("需要存储权限才能扫描 Download 目录")
+            }
+            .request()
     }
 
     private fun initView() = binding.run {
@@ -42,7 +59,7 @@ class WatchBookshelfActivity :
         recyclerView.layoutManager = LinearLayoutManager(this@WatchBookshelfActivity)
         recyclerView.adapter = adapter
         tvScan.setOnClickListener {
-            viewModel.scanDownload()
+            requestStorageAndScan()
         }
     }
 
