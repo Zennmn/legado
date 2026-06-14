@@ -409,7 +409,11 @@
 
         <service
             android:name=".service.ExportBookService"
-            android:foregroundServiceType="dataSync" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FG_SERVICE_TYPE"
+                android:value="local_file_export" />
+        </service>
         <service
             android:name=".service.TTSReadAloudService"
             android:foregroundServiceType="mediaPlayback" />
