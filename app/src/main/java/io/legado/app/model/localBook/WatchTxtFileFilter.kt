@@ -11,12 +11,11 @@ object WatchTxtFileFilter {
     }
 
     fun listTxtFiles(root: File): List<File> {
-        return root.listFiles()
-            ?.asSequence()
-            ?.filter { it.isFile }
-            ?.filter { isTxtFileName(it.name) }
-            ?.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
-            ?.toList()
-            ?: emptyList()
+        if (!root.exists() || !root.isDirectory) return emptyList()
+        return root.walk()
+            .filter { it.isFile }
+            .filter { isTxtFileName(it.name) }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
+            .toList()
     }
 }

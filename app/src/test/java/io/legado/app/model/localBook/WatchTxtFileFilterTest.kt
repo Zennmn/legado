@@ -45,4 +45,25 @@ class WatchTxtFileFilterTest {
 
         assertEquals(emptyList<File>(), WatchTxtFileFilter.listTxtFiles(root))
     }
+
+    @Test
+    fun listTxtFilesScansSubdirectories() {
+        val root = createTempDirectory(prefix = "watch-txt-filter-sub-").toFile()
+        try {
+            File(root, "top.txt").writeText("top")
+            val sub = File(root, "小说")
+            sub.mkdir()
+            File(sub, "三体.txt").writeText("三体")
+            File(sub, "cover.jpg").writeText("jpg")
+            val sub2 = File(sub, "系列")
+            sub2.mkdir()
+            File(sub2, "黑暗森林.txt").writeText("黑暗森林")
+
+            val names = WatchTxtFileFilter.listTxtFiles(root).map { it.name }
+
+            assertEquals(listOf("top.txt", "三体.txt", "黑暗森林.txt"), names)
+        } finally {
+            root.deleteRecursively()
+        }
+    }
 }
