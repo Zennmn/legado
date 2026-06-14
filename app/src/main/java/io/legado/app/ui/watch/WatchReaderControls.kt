@@ -2,7 +2,7 @@ package io.legado.app.ui.watch
 
 object WatchReaderControls {
 
-    const val MIN_TEXT_SIZE = 16
+    const val MIN_TEXT_SIZE = 5
     const val MAX_TEXT_SIZE = 32
     const val MIN_LINE_SPACING = 2
     const val MAX_LINE_SPACING = 20

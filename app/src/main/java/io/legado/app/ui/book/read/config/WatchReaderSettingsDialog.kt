@@ -48,7 +48,7 @@ class WatchReaderSettingsDialog : BaseDialogFragment(R.layout.dialog_watch_reade
         btnBrightnessDown.setOnClickListener { changeBrightness(-16) }
         btnBrightnessUp.setOnClickListener { changeBrightness(16) }
         btnResetBlack.setOnClickListener {
-            WatchReaderDefaults.apply()
+            WatchReaderDefaults.resetAllToBlack()
             postEvent(EventBus.UP_CONFIG, arrayListOf(0, 1, 2, 6, 9, 11))
             applyBrightnessToWindow()
             upValues()

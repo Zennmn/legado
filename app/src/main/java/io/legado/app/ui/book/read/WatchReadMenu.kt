@@ -105,7 +105,7 @@ class WatchReadMenu @JvmOverloads constructor(
         btnBrightnessDown.setOnClickListener { changeBrightness(-16) }
         btnBrightnessUp.setOnClickListener { changeBrightness(16) }
         btnOled.setOnClickListener {
-            WatchReaderDefaults.apply()
+            WatchReaderDefaults.resetAllToBlack()
             postEvent(EventBus.UP_CONFIG, arrayListOf(0, 1, 2, 6, 9, 11))
             upNumbers()
             applyBrightnessToWindow()

@@ -7,7 +7,7 @@ class WatchReaderControlsTest {
 
     @Test
     fun textSizeIsClampedToWatchRange() {
-        assertEquals(16, WatchReaderControls.nextTextSize(16, -1))
+        assertEquals(5, WatchReaderControls.nextTextSize(5, -1))
         assertEquals(22, WatchReaderControls.nextTextSize(20, 2))
         assertEquals(32, WatchReaderControls.nextTextSize(32, 1))
     }
