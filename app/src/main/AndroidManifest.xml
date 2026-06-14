@@ -2,9 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Remove INTERNET permission inherited from library manifests (firebase-perf etc.) -->
+    <!-- Remove network permissions inherited from library manifests (firebase-perf, okhttp etc.) -->
     <uses-permission
         android:name="android.permission.INTERNET"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
         tools:node="remove" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />

@@ -3,12 +3,13 @@ package io.legado.app.model.localBook
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.File
+import java.nio.file.Files
 
 class WatchTxtImporterTest {
 
     @Test
     fun scanAndImportImportsOnlyTxtFiles() {
-        val root = createTempDir(prefix = "watch-txt-import-")
+        val root = Files.createTempDirectory("watch-txt-import-").toFile()
         val imported = arrayListOf<String>()
         try {
             File(root, "b.txt").writeText("b")
@@ -33,7 +34,7 @@ class WatchTxtImporterTest {
 
     @Test
     fun scanAndImportRecordsFailuresAndContinues() {
-        val root = createTempDir(prefix = "watch-txt-import-fail-")
+        val root = Files.createTempDirectory("watch-txt-import-fail-").toFile()
         try {
             File(root, "a.txt").writeText("a")
             File(root, "b.txt").writeText("b")
