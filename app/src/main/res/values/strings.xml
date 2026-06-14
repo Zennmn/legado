@@ -1349,4 +1349,5 @@
     <string name="watch_empty_title">Download 里没有 TXT</string>
     <string name="watch_empty_summary">把 .txt 文件放到 Download 后点刷新</string>
     <string name="watch_remove_book">移除书籍</string>
+    <string name="watch_not_started">未开始</string>
 </resources>
