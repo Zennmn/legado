@@ -144,6 +144,8 @@ import androidx.lifecycle.Lifecycle
 import com.script.rhino.runScriptWithContext
 import io.legado.app.model.analyzeRule.AnalyzeUrl.Companion.paramPattern
 import io.legado.app.ui.login.SourceLoginJsExtensions
+import io.legado.app.ui.watch.EdgeSwipeBackLayout
+import io.legado.app.ui.watch.WatchReaderDefaults
 
 /**
  * 阅读界面
@@ -269,6 +271,10 @@ class ReadBookActivity : BaseReadBookActivity(),
     @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        WatchReaderDefaults.apply()
+        (binding.root as EdgeSwipeBackLayout).setOnEdgeBack {
+            finish()
+        }
         binding.cursorLeft.setColorFilter(accentColor)
         binding.cursorRight.setColorFilter(accentColor)
         binding.cursorLeft.setOnTouchListener(this)

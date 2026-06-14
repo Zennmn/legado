@@ -31,7 +31,6 @@ class WatchBookshelfActivity :
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         WatchReaderDefaults.apply()
         initView()
         observeBooks()

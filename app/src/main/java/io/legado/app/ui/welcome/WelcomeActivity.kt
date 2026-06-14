@@ -7,14 +7,13 @@ import androidx.core.view.postDelayed
 import io.legado.app.base.BaseActivity
 import io.legado.app.constant.PreferKey
 import io.legado.app.constant.Theme
-import io.legado.app.data.appDb
 import io.legado.app.databinding.ActivityWelcomeBinding
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.ThemeConfig
 import io.legado.app.lib.theme.accentColor
 import io.legado.app.lib.theme.backgroundColor
-import io.legado.app.ui.book.read.ReadBookActivity
-import io.legado.app.ui.main.MainActivity
+import io.legado.app.ui.watch.WatchBookshelfActivity
+import io.legado.app.ui.watch.WatchReaderDefaults
 import io.legado.app.utils.BitmapUtils
 import io.legado.app.utils.fullScreen
 import io.legado.app.utils.getPrefBoolean
@@ -99,10 +98,8 @@ open class WelcomeActivity : BaseActivity<ActivityWelcomeBinding>() {
     }
 
     private fun startMainActivity() {
-        startActivity<MainActivity>()
-        if (getPrefBoolean(PreferKey.defaultToRead) && appDb.bookDao.lastReadBook != null) {
-            startActivity<ReadBookActivity>()
-        }
+        WatchReaderDefaults.apply()
+        startActivity<WatchBookshelfActivity>()
         finish()
     }
 
