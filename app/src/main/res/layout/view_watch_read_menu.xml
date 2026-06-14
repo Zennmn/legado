@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/watch_menu_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/watch_oled_black"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="26dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="26dp"
+    android:paddingBottom="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_book_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:textColor="@color/watch_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="本地小说" />
+
+        <TextView
+            android:id="@+id/tv_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:textColor="@color/watch_text_secondary"
+            android:textSize="12sp"
+            tools:text="第 3/12 章" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:columnCount="3"
+            android:rowCount="3">
+
+            <TextView
+                android:id="@+id/btn_exit"
+                style="@style/WatchReaderMenuButton"
+                android:text="@string/watch_reader_exit" />
+
+            <TextView
+                android:id="@+id/btn_toc"
+                style="@style/WatchReaderMenuButton"
+                android:text="@string/watch_reader_toc" />
+
+            <TextView
+                android:id="@+id/btn_settings"
+                style="@style/WatchReaderMenuButton"
+                android:text="@string/watch_reader_settings" />
+
+            <TextView
+                android:id="@+id/btn_text_down"
+                style="@style/WatchReaderMenuButton"
+                android:text="@string/watch_text_smaller" />
+
+            <TextView
+                android:id="@+id/tv_text_size"
+                style="@style/WatchReaderMenuValue"
+                tools:text="22" />
+
+            <TextView
+                android:id="@+id/btn_text_up"
+                style="@style/WatchReaderMenuButton"
+                android:text="@string/watch_text_larger" />
+
+            <TextView
+                android:id="@+id/btn_brightness_down"
+                style="@style/WatchReaderMenuButton"
+                android:text="@string/watch_brightness_down" />
+
+            <TextView
+                android:id="@+id/tv_brightness"
+                style="@style/WatchReaderMenuValue"
+                tools:text="128" />
+
+            <TextView
+                android:id="@+id/btn_brightness_up"
+                style="@style/WatchReaderMenuButton"
+                android:text="@string/watch_brightness_up" />
+        </GridLayout>
+
+        <TextView
+            android:id="@+id/btn_oled"
+            android:layout_width="96dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/watch_oled_reset"
+            android:textColor="@color/watch_text_primary"
+            android:textSize="14sp" />
+    </LinearLayout>
+</FrameLayout>
