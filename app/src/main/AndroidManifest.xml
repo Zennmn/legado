@@ -135,6 +135,12 @@
             android:configChanges="locale|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode"
             android:exported="false"
             android:screenOrientation="portrait" />
+        <!-- 手表目录 -->
+        <activity
+            android:name=".ui.watch.toc.WatchTocActivity"
+            android:configChanges="locale|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <!-- 主界面 -->
         <activity
             android:name=".ui.main.MainActivity"
