@@ -155,4 +155,41 @@
         <item name="android:textSize">13sp</item>
     </style>
 
+    <style name="WatchReaderSettingsRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">46dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="WatchReaderSettingsLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/watch_text_primary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="WatchReaderSettingsButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/watch_text_primary</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="WatchReaderSettingsValue">
+        <item name="android:layout_width">42dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/watch_text_secondary</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
 </resources>

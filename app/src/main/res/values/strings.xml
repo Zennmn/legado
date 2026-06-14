@@ -1361,4 +1361,10 @@
     <string name="watch_oled_reset">纯黑</string>
     <string name="watch_toc_title">目录</string>
     <string name="watch_toc_empty">没有目录</string>
+    <string name="watch_setting_text_size">字号</string>
+    <string name="watch_setting_line_spacing">行距</string>
+    <string name="watch_setting_brightness">亮度</string>
+    <string name="watch_setting_reset_black">重置纯黑</string>
+    <string name="watch_minus">-</string>
+    <string name="watch_plus">+</string>
 </resources>
