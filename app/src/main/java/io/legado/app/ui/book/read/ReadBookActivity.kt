@@ -1579,10 +1579,14 @@ class ReadBookActivity : BaseReadBookActivity(),
         backupJob = lifecycleScope.launch(IO) {
             delay(300000)
             ReadBook.book?.let {
-                AppWebDav.uploadBookProgress(it)
-                ensureActive()
+                if (!watchLocalOnly) {
+                    AppWebDav.uploadBookProgress(it)
+                    ensureActive()
+                }
                 it.update()
-                Backup.autoBack(this@ReadBookActivity)
+                if (!watchLocalOnly) {
+                    Backup.autoBack(this@ReadBookActivity)
+                }
             }
         }
     }
