@@ -267,6 +267,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     }
     private var justInitData: Boolean = false
     private var syncDialog: AlertDialog? = null
+    private val watchLocalOnly = true
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -367,11 +368,12 @@ class ReadBookActivity : BaseReadBookActivity(),
         binding.readView.upTime()
         screenOffTimerStart()
         // 网络监听，当从无网切换到网络环境时同步进度（注意注册的同时就会收到监听，因此界面激活时无需重复执行同步操作）
-        networkChangedListener.register()
-        networkChangedListener.onNetworkChanged = {
-            // 当网络是可用状态且无需初始化时同步进度（初始化中已有同步进度逻辑）
-            if (AppConfig.syncBookProgressPlus && NetworkUtils.isAvailable() && !justInitData && ReadBook.inBookshelf) {
-                ReadBook.syncProgress({ progress -> sureNewProgress(progress) })
+        if (!watchLocalOnly) {
+            networkChangedListener.register()
+            networkChangedListener.onNetworkChanged = {
+                if (AppConfig.syncBookProgressPlus && NetworkUtils.isAvailable() && !justInitData && ReadBook.inBookshelf) {
+                    ReadBook.syncProgress({ progress -> sureNewProgress(progress) })
+                }
             }
         }
     }
@@ -384,18 +386,20 @@ class ReadBookActivity : BaseReadBookActivity(),
         ReadBook.cancelPreDownloadTask()
         unregisterReceiver(timeBatteryReceiver)
         upSystemUiVisibility()
-        if (!BuildConfig.DEBUG && ReadBook.inBookshelf) {
+        if (!watchLocalOnly && !BuildConfig.DEBUG && ReadBook.inBookshelf) {
             if (AppConfig.syncBookProgressPlus) {
                 ReadBook.syncProgress()
             } else {
                 ReadBook.uploadProgress()
             }
         }
-        if (!BuildConfig.DEBUG) {
+        if (!watchLocalOnly && !BuildConfig.DEBUG) {
             Backup.autoBack(this)
         }
         justInitData = false
-        networkChangedListener.unRegister()
+        if (!watchLocalOnly) {
+            networkChangedListener.unRegister()
+        }
     }
 
     override fun onCompatCreateOptionsMenu(menu: Menu): Boolean {
@@ -430,13 +434,47 @@ class ReadBookActivity : BaseReadBookActivity(),
         return super.onMenuOpened(featureId, menu)
     }
 
+    private fun Menu.hideWatchOnlineItems() {
+        listOf(
+            R.id.menu_get_progress,
+            R.id.menu_cover_progress,
+            R.id.menu_simulated_reading,
+            R.id.menu_image_style,
+            R.id.menu_effective_replaces,
+            R.id.menu_log,
+            R.id.menu_help
+        ).forEach { id ->
+            findItem(id)?.isVisible = false
+        }
+    }
+
+    private fun isWatchBlockedMenuItem(itemId: Int): Boolean {
+        return watchLocalOnly && itemId in setOf(
+            R.id.menu_change_source,
+            R.id.menu_book_change_source,
+            R.id.menu_chapter_change_source,
+            R.id.menu_refresh,
+            R.id.menu_refresh_dur,
+            R.id.menu_refresh_after,
+            R.id.menu_refresh_all,
+            R.id.menu_download,
+            R.id.menu_get_progress,
+            R.id.menu_cover_progress,
+            R.id.menu_simulated_reading,
+            R.id.menu_image_style,
+            R.id.menu_effective_replaces,
+            R.id.menu_log,
+            R.id.menu_help
+        )
+    }
+
     /**
      * 更新菜单
      */
     private fun upMenu() {
         val menu = menu ?: return
         val book = ReadBook.book ?: return
-        val onLine = !book.isLocal
+        val onLine = !watchLocalOnly && !book.isLocal
         for (i in 0 until menu.size) {
             val item = menu[i]
             when (item.groupId) {
@@ -458,6 +496,10 @@ class ReadBookActivity : BaseReadBookActivity(),
                 }
             }
         }
+        if (watchLocalOnly) {
+            menu.hideWatchOnlineItems()
+            return
+        }
         lifecycleScope.launch {
             val show = ReadBook.inBookshelf && withContext(IO) {
                 AppWebDav.isOk
@@ -471,6 +513,9 @@ class ReadBookActivity : BaseReadBookActivity(),
      * 菜单
      */
     override fun onCompatOptionsItemSelected(item: MenuItem): Boolean {
+        if (isWatchBlockedMenuItem(item.itemId)) {
+            return true
+        }
         when (item.itemId) {
             R.id.menu_change_source,
             R.id.menu_book_change_source -> {
