@@ -184,7 +184,6 @@ class SpeakEngineDialog() : BaseDialogFragment(R.layout.dialog_recycler_view),
         when (item?.itemId) {
             R.id.menu_clear -> clearCache()
             R.id.menu_add -> showDialogFragment<HttpTtsEditDialog>()
-            R.id.menu_default -> viewModel.importDefault()
             R.id.menu_import_local -> importDocResult.launch {
                 mode = HandleFileContract.FILE
                 allowExtensions = arrayOf("txt", "json")

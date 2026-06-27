@@ -22,7 +22,6 @@ import io.legado.app.constant.PreferKey
 import io.legado.app.data.entities.BaseSource
 import io.legado.app.data.entities.Book
 import io.legado.app.help.CacheManager
-import io.legado.app.help.DefaultData
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.glide.BlurTransformation
 import io.legado.app.help.glide.ImageLoader
@@ -197,7 +196,7 @@ object BookCover {
     }
 
     fun getCoverRule(): CoverRule {
-        return getConfig() ?: DefaultData.coverRule
+        return getConfig() ?: CoverRule(searchUrl = "", coverRule = "")
     }
 
     fun getConfig(): CoverRule? {

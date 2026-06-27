@@ -5,7 +5,6 @@ import io.legado.app.base.BaseViewModel
 import io.legado.app.constant.AppLog
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.DictRule
-import io.legado.app.help.DefaultData
 import io.legado.app.utils.toastOnUi
 
 class DictRuleViewModel(application: Application) : BaseViewModel(application) {
@@ -52,12 +51,6 @@ class DictRuleViewModel(application: Application) : BaseViewModel(application) {
         execute {
             val array = dictRule.map { it.copy(enabled = false) }.toTypedArray()
             appDb.dictRuleDao.insert(*array)
-        }
-    }
-
-    fun importDefault() {
-        execute {
-            DefaultData.importDefaultDictRules()
         }
     }
 

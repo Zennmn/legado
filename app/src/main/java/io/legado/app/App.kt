@@ -19,7 +19,6 @@ import io.legado.app.base.AppContextWrapper
 import io.legado.app.constant.AppConst.channelIdDownload
 import io.legado.app.constant.AppConst.channelIdReadAloud
 import io.legado.app.constant.AppConst.channelIdWeb
-import io.legado.app.constant.PreferKey
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
@@ -31,36 +30,23 @@ import io.legado.app.data.entities.rule.ContentRule
 import io.legado.app.data.entities.rule.ExploreRule
 import io.legado.app.data.entities.rule.SearchRule
 import io.legado.app.help.AppFreezeMonitor
-import io.legado.app.help.AppWebDav
 import io.legado.app.help.CrashHandler
 import io.legado.app.help.DefaultData
 import io.legado.app.help.DispatchersMonitor
 import io.legado.app.help.LifecycleHelp
-import io.legado.app.help.RuleBigDataHelp
 import io.legado.app.help.book.BookHelp
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.ReadBookConfig
 import io.legado.app.help.config.ThemeConfig.applyDayNight
 import io.legado.app.help.config.ThemeConfig.applyDayNightInit
 import io.legado.app.help.coroutine.Coroutine
-import io.legado.app.help.http.Cronet
-import io.legado.app.help.http.ObsoleteUrlFactory
-import io.legado.app.help.http.okHttpClient
 import io.legado.app.help.rhino.NativeBaseSource
-import io.legado.app.help.source.SourceHelp
-import io.legado.app.help.storage.Backup
-import io.legado.app.model.BookCover
 import io.legado.app.utils.ChineseUtils
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.defaultSharedPreferences
-import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.isDebuggable
-import kotlinx.coroutines.launch
 import org.chromium.base.ThreadUtils
-import splitties.init.appCtx
 import splitties.systemservices.notificationManager
-import java.net.URL
-import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 
 class App : Application() {
@@ -81,8 +67,6 @@ class App : Application() {
             LogUtils.init(this@App)
             LogUtils.d("App", "onCreate")
             LogUtils.logDeviceInfo()
-            //预下载Cronet so
-            Cronet.preDownload()
             createNotificationChannels()
             LiveEventBus.config()
                 .lifecycleObserverAlwaysActive(true)
@@ -92,23 +76,9 @@ class App : Application() {
             DefaultData.upVersion()
             AppFreezeMonitor.init(this@App)
             DispatchersMonitor.init()
-            URL.setURLStreamHandlerFactory(ObsoleteUrlFactory(okHttpClient))
-            launch { installGmsTlsProvider(appCtx) }
-            initRhino()
-            //初始化封面
-            BookCover.toString()
-            //清除过期数据
             appDb.cacheDao.clearDeadline(System.currentTimeMillis())
-            if (getPrefBoolean(PreferKey.autoClearExpired, true)) {
-                val clearTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1)
-                appDb.searchBookDao.clearExpired(clearTime)
-            }
-            RuleBigDataHelp.clearInvalid()
             BookHelp.clearInvalidCache()
-            Backup.clearCache()
             ReadBookConfig.clearBgAndCache()
-//            ThemeConfig.clearBg() //每次手动切换主题时清理多余图片
-            //初始化简繁转换引擎
             when (AppConfig.chineseConverterType) {
                 1 -> {
                     ChineseUtils.fixT2sDict()
@@ -116,12 +86,6 @@ class App : Application() {
                 }
 
                 2 -> ChineseUtils.preLoad(true, TransType.SIMPLE_TO_TRADITIONAL)
-            }
-            //调整排序序号
-            SourceHelp.adjustSortNumber()
-            //同步阅读记录
-            if (AppConfig.syncBookProgress) {
-                AppWebDav.downloadAllBookProgress()
             }
         }
     }
