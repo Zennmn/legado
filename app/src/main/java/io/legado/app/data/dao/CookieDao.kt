@@ -23,4 +23,7 @@ interface CookieDao {
 
     @Query("delete from cookies where url like '%|%'")
     fun deleteOkHttp()
+
+    @Query("delete from cookies")
+    fun clearAll()
 }

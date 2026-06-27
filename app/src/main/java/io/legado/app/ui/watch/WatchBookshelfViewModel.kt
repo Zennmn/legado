@@ -7,6 +7,7 @@ import io.legado.app.constant.AppLog
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.Book
 import io.legado.app.model.localBook.LocalBook
+import io.legado.app.model.localBook.WatchOnlyDataCleaner
 import io.legado.app.model.localBook.WatchTxtImportResult
 import io.legado.app.model.localBook.WatchTxtImporter
 import io.legado.app.model.localBook.WatchTxtShelfCleaner
@@ -46,6 +47,7 @@ class WatchBookshelfViewModel(application: Application) : BaseViewModel(applicat
 
     fun scanDownload(importer: WatchTxtImporter = WatchTxtImporter()) {
         execute(context = IO) {
+            WatchOnlyDataCleaner.clean()
             importer.scanAndImport()
         }.onStart {
             scanningLiveData.postValue(true)

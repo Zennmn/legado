@@ -33,4 +33,6 @@ interface CacheDao {
     @Query("delete from caches where deadline > 0 and deadline < :now")
     fun clearDeadline(now: Long)
 
+    @Query("delete from caches")
+    fun clearAll()
 }
