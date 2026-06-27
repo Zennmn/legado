@@ -6,7 +6,7 @@ import java.io.File
 object WatchTxtShelfCleaner {
 
     fun booksToRemove(downloadDir: File, books: Iterable<Book>): List<Book> {
-        return books.filterNot { WatchTxtRetentionPolicy.shouldKeep(downloadDir, it) }
+        return books.filter { isMissingDownloadTxtBook(downloadDir, it) }
     }
 
     fun staleDownloadTxtBooks(downloadDir: File, books: Iterable<Book>): List<Book> {
