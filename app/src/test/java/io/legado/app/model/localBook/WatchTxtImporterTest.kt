@@ -92,21 +92,21 @@ class WatchTxtImporterTest {
     }
 
     @Test
-    fun scanAndImportKeepsNonDownloadAndNonTxtBooksWhenPruning() {
-        val root = Files.createTempDirectory("watch-txt-import-keep-").toFile()
+    fun scanAndImportRemovesNonDownloadAndNonTxtBooksWhenPruning() {
+        val root = Files.createTempDirectory("watch-txt-import-remove-legacy-").toFile()
         val otherRoot = Files.createTempDirectory("watch-txt-import-other-").toFile()
         val removed = arrayListOf<String>()
         try {
-            val outsideMissingTxt = File(otherRoot, "outside.txt")
-            val missingPdf = File(root, "missing.pdf")
+            val outsideTxt = File(otherRoot, "outside.txt").apply { writeText("outside") }
+            val localPdf = File(root, "legacy.pdf").apply { writeText("pdf") }
 
             val importer = WatchTxtImporter(
                 downloadDirProvider = { root },
                 importFile = {},
                 shelfBooksProvider = {
                     listOf(
-                        localTxtBook(outsideMissingTxt),
-                        localBook(missingPdf, BookType.local)
+                        localTxtBook(outsideTxt),
+                        localBook(localPdf, BookType.local)
                     )
                 },
                 removeBookFromShelf = { removed.add(it.originName) }
@@ -114,8 +114,8 @@ class WatchTxtImporterTest {
 
             val result = importer.scanAndImport()
 
-            assertEquals(emptyList<String>(), removed)
-            assertEquals(0, result.removedCount)
+            assertEquals(listOf("legacy.pdf", "outside.txt"), removed.sorted())
+            assertEquals(2, result.removedCount)
             assertEquals(0, result.importedCount)
             assertEquals(0, result.scannedCount)
         } finally {

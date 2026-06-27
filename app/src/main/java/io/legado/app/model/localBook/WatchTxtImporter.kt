@@ -33,7 +33,7 @@ class WatchTxtImporter(
         val downloadDir = downloadDirProvider()
         val files = WatchTxtFileFilter.listTxtFiles(downloadDir)
         var removedCount = 0
-        WatchTxtShelfCleaner.staleDownloadTxtBooks(downloadDir, shelfBooksProvider())
+        WatchTxtShelfCleaner.booksToRemove(downloadDir, shelfBooksProvider())
             .forEach { book ->
                 runCatching {
                     removeBookFromShelf(book)
