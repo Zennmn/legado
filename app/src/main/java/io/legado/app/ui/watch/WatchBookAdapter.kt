@@ -12,7 +12,8 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class WatchBookAdapter(
-    private val onBookClick: (Book) -> Unit
+    private val onBookClick: (Book) -> Unit,
+    private val onBookLongClick: (Book) -> Unit
 ) : RecyclerView.Adapter<WatchBookAdapter.Holder>() {
 
     private val books = arrayListOf<Book>()
@@ -46,6 +47,10 @@ class WatchBookAdapter(
             tvName.text = book.name.ifBlank { book.originName }
             tvProgress.text = progressText(book, itemView.context)
             root.setOnClickListener { onBookClick(book) }
+            root.setOnLongClickListener {
+                onBookLongClick(book)
+                true
+            }
         }
     }
 

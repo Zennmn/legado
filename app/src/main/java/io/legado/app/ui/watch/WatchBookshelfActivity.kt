@@ -1,6 +1,7 @@
 package io.legado.app.ui.watch
 
 import android.os.Bundle
+import android.os.Environment
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ import io.legado.app.utils.visible
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 
 class WatchBookshelfActivity :
     VMBaseActivity<ActivityWatchBookshelfBinding, WatchBookshelfViewModel>(
@@ -27,11 +29,23 @@ class WatchBookshelfActivity :
 
     override val binding by viewBinding(ActivityWatchBookshelfBinding::inflate)
     override val viewModel by viewModels<WatchBookshelfViewModel>()
+    private val downloadDir: File by lazy {
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    }
 
     private val adapter by lazy {
-        WatchBookAdapter { book ->
-            startActivityForBook(book)
-        }
+        WatchBookAdapter(
+            onBookClick = { book ->
+                if (viewModel.isMissingDownloadTxtBook(book, downloadDir)) {
+                    viewModel.deleteFromShelf(book, "文件不存在，已从书架移除")
+                } else {
+                    startActivityForBook(book)
+                }
+            },
+            onBookLongClick = { book ->
+                viewModel.deleteFromShelf(book)
+            }
+        )
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
