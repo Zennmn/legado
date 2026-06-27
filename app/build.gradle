@@ -11,9 +11,7 @@ plugins {
     alias libs.plugins.kotlin.parcelize
     alias libs.plugins.room
     alias libs.plugins.ksp
-    alias libs.plugins.google.services
 }
-apply from: 'download.gradle'
 
 static def releaseTime() {
     return new Date().format("yy.MMddHH", TimeZone.getTimeZone("GMT+8"))
@@ -59,9 +57,6 @@ android {
             abiFilters 'armeabi-v7a'
         }
 
-        buildConfigField "String", "Cronet_Version", "\"$CronetVersion\""
-        buildConfigField "String", "Cronet_Main_Version", "\"$CronetMainVersion\""
-
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments += [
@@ -92,7 +87,7 @@ android {
 
             minifyEnabled true
             shrinkResources = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
@@ -103,7 +98,7 @@ android {
             applicationIdSuffix '.debug'
             versionNameSuffix 'debug'
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     //noinspection GrDeprecatedAPIUsage
@@ -208,23 +203,6 @@ dependencies {
     implementation(libs.lifecycle.common.java8)
     implementation(libs.lifecycle.service)
 
-    //media
-    implementation(libs.media.media)
-    // For media playback using ExoPlayer
-    implementation(libs.media3.exoplayer)
-    //implementation(libs.media3.exoplayer.hls)
-    //implementation(libs.media3.ui)
-    // For loading data using the OkHttp network stack
-    implementation(libs.media3.datasource.okhttp)
-    // For exposing and controlling media sessions
-    //implementation "androidx.media3:media3-session:$media3_version"
-
-    //videoPlayer
-    implementation(libs.gsyVideoPlayer.java)
-    implementation(libs.gsyVideoPlayer.exo2)
-    //弹幕
-    implementation (libs.danmakuFlameMaster)
-
     //Splitties
     implementation(libs.splitties.appctx)
     implementation(libs.splitties.systemservices)
@@ -243,16 +221,11 @@ dependencies {
     //规则相关
     implementation(libs.jsoup)
     implementation(libs.json.path)
-    implementation(libs.jsoupxpath)
     implementation(project(path: ':modules:book'))
     implementation(project(path: ':modules:rhino'))
 
-    //JS rhino
-
     //网络
     implementation(libs.okhttp)
-    implementation(fileTree(dir: 'cronetlib', include: ['*.jar', '*.aar']))
-    implementation(libs.protobuf.javalite)
 
     //Glide
     implementation(libs.glide.glide)
@@ -263,10 +236,6 @@ dependencies {
     implementation(libs.androidsvg)
     //Glide svg plugin
     implementation(libs.glide.svg)
-
-    //webServer
-    implementation(libs.nanohttpd.nanohttpd)
-    implementation(libs.nanohttpd.websocket)
 
     //二维码
     //noinspection GradleDependency
@@ -294,11 +263,6 @@ dependencies {
     //noinspection GradleDependency,GradlePackageUpdate
     implementation(libs.hutool.crypto)
 
-    //firebase, 崩溃统计和性能统计
-    implementation platform(libs.firebase.bom)
-    implementation libs.firebase.analytics
-    implementation libs.firebase.perf
-
     implementation libs.glide.recyclerview
 
     //LeakCanary, 内存泄露检测
@@ -306,8 +270,6 @@ dependencies {
 
     //com.github.AmrDeveloper:CodeView代码编辑已集成到应用内
     //epubLib集成到应用内
-    // 椒盐歌词
-    implementation(libs.lyricViewx)
     // sora-editor代码编辑器,更丰富的编辑功能
     implementation(platform(libs.soraEditor.bom))
     implementation(libs.soraEditor.core)

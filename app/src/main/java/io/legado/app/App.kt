@@ -33,8 +33,6 @@ import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.utils.ChineseUtils
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.defaultSharedPreferences
-import io.legado.app.utils.isDebuggable
-import org.chromium.base.ThreadUtils
 import splitties.systemservices.notificationManager
 import java.util.logging.Level
 
@@ -45,9 +43,6 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         CrashHandler(this)
-        if (isDebuggable) {
-            ThreadUtils.setThreadAssertsDisabledForTesting(true)
-        }
         oldConfig = Configuration(resources.configuration)
         applyDayNightInit(this)
         registerActivityLifecycleCallbacks(LifecycleHelp)
