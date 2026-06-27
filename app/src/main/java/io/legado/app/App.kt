@@ -12,9 +12,6 @@ import android.os.Build
 import com.github.liuyueyi.quick.transfer.constants.TransType
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.jeremyliao.liveeventbus.logger.DefaultLogger
-import com.script.rhino.ReadOnlyJavaObject
-import com.script.rhino.RhinoScriptEngine
-import com.script.rhino.RhinoWrapFactory
 import io.legado.app.base.AppContextWrapper
 import io.legado.app.constant.AppConst.channelIdDownload
 import io.legado.app.constant.AppConst.channelIdReadAloud
@@ -22,13 +19,6 @@ import io.legado.app.constant.AppConst.channelIdWeb
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
-import io.legado.app.data.entities.BookSource
-import io.legado.app.data.entities.HttpTTS
-import io.legado.app.data.entities.RssSource
-import io.legado.app.data.entities.rule.BookInfoRule
-import io.legado.app.data.entities.rule.ContentRule
-import io.legado.app.data.entities.rule.ExploreRule
-import io.legado.app.data.entities.rule.SearchRule
 import io.legado.app.help.AppFreezeMonitor
 import io.legado.app.help.CrashHandler
 import io.legado.app.help.DefaultData
@@ -40,7 +30,6 @@ import io.legado.app.help.config.ReadBookConfig
 import io.legado.app.help.config.ThemeConfig.applyDayNight
 import io.legado.app.help.config.ThemeConfig.applyDayNightInit
 import io.legado.app.help.coroutine.Coroutine
-import io.legado.app.help.rhino.NativeBaseSource
 import io.legado.app.utils.ChineseUtils
 import io.legado.app.utils.LogUtils
 import io.legado.app.utils.defaultSharedPreferences
@@ -76,7 +65,6 @@ class App : Application() {
             DefaultData.upVersion()
             AppFreezeMonitor.init(this@App)
             DispatchersMonitor.init()
-            appDb.cacheDao.clearDeadline(System.currentTimeMillis())
             BookHelp.clearInvalidCache()
             ReadBookConfig.clearBgAndCache()
             when (AppConfig.chineseConverterType) {
@@ -182,19 +170,6 @@ class App : Application() {
                 webChannel
             )
         )
-    }
-
-    private fun initRhino() {
-        RhinoScriptEngine
-        RhinoWrapFactory.register(BookSource::class.java, NativeBaseSource.factory)
-        RhinoWrapFactory.register(RssSource::class.java, NativeBaseSource.factory)
-        RhinoWrapFactory.register(HttpTTS::class.java, NativeBaseSource.factory)
-        RhinoWrapFactory.register(ExploreRule::class.java, ReadOnlyJavaObject.factory)
-        RhinoWrapFactory.register(SearchRule::class.java, ReadOnlyJavaObject.factory)
-        RhinoWrapFactory.register(BookInfoRule::class.java, ReadOnlyJavaObject.factory)
-        RhinoWrapFactory.register(ContentRule::class.java, ReadOnlyJavaObject.factory)
-        RhinoWrapFactory.register(BookChapter::class.java, ReadOnlyJavaObject.factory)
-        RhinoWrapFactory.register(Book.ReadConfig::class.java, ReadOnlyJavaObject.factory)
     }
 
     class EventLogger : DefaultLogger() {

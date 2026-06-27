@@ -30,14 +30,8 @@ import io.legado.app.lib.theme.ThemeStore
 import io.legado.app.lib.theme.bottomBackground
 import io.legado.app.model.CacheBook
 import io.legado.app.model.ReadBook
-import io.legado.app.ui.book.read.config.BgTextConfigDialog
-import io.legado.app.ui.book.read.config.ClickActionConfigDialog
-import io.legado.app.ui.book.read.config.PaddingConfigDialog
-import io.legado.app.ui.book.read.config.PageKeyDialog
-import io.legado.app.ui.file.HandleFileContract
+import io.legado.app.ui.book.read.config.WatchReaderSettingsDialog
 import io.legado.app.utils.ColorUtils
-import io.legado.app.utils.FileDoc
-import io.legado.app.utils.find
 import io.legado.app.utils.getPrefString
 import io.legado.app.utils.gone
 import io.legado.app.utils.isTv
@@ -68,17 +62,6 @@ abstract class BaseReadBookActivity :
                 onBottomDialogChange()
             }
         }
-    private val selectBookFolderResult = registerForActivityResult(HandleFileContract()) {
-        it.uri?.let { uri ->
-            ReadBook.book?.let { book ->
-                FileDoc.fromUri(uri, true).find(book.originName)?.let { doc ->
-                    book.bookUrl = doc.uri.toString()
-                    book.save()
-                    viewModel.loadChapterList(book)
-                } ?: ReadBook.upMsg("找不到文件")
-            }
-        } ?: ReadBook.upMsg("没有权限访问")
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ReadBook.msg = null
@@ -96,12 +79,7 @@ abstract class BaseReadBookActivity :
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         binding.navigationBar.setBackgroundColor(bottomBackground)
-        viewModel.permissionDenialLiveData.observe(this) {
-            selectBookFolderResult.launch {
-                mode = HandleFileContract.DIR_SYS
-                title = "选择书籍所在文件夹"
-            }
-        }
+        viewModel.permissionDenialLiveData.observe(this) { ReadBook.upMsg("没有权限访问") }
         if (!useWatchReaderUi && !LocalConfig.readHelpVersionIsLast) {
             if (isTv) {
                 showCustomPageKeyConfig()
@@ -127,19 +105,19 @@ abstract class BaseReadBookActivity :
     }
 
     fun showPaddingConfig() {
-        showDialogFragment<PaddingConfigDialog>()
+        showDialogFragment<WatchReaderSettingsDialog>()
     }
 
     fun showBgTextConfig() {
-        showDialogFragment<BgTextConfigDialog>()
+        showDialogFragment<WatchReaderSettingsDialog>()
     }
 
     fun showClickRegionalConfig() {
-        showDialogFragment<ClickActionConfigDialog>()
+        showDialogFragment<WatchReaderSettingsDialog>()
     }
 
     private fun showCustomPageKeyConfig() {
-        PageKeyDialog(this).show()
+        showDialogFragment<WatchReaderSettingsDialog>()
     }
 
     /**

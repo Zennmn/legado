@@ -12,12 +12,6 @@ import com.google.gson.ToNumberPolicy
 import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonWriter
-import io.legado.app.data.entities.rule.BookInfoRule
-import io.legado.app.data.entities.rule.ContentRule
-import io.legado.app.data.entities.rule.ExploreRule
-import io.legado.app.data.entities.rule.ReviewRule
-import io.legado.app.data.entities.rule.SearchRule
-import io.legado.app.data.entities.rule.TocRule
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
@@ -40,14 +34,7 @@ val INITIAL_GSON: Gson by lazy {
 }
 
 val GSON: Gson by lazy {
-    INITIAL_GSON.newBuilder()
-        .registerTypeAdapter(ExploreRule::class.java, ExploreRule.jsonDeserializer)
-        .registerTypeAdapter(SearchRule::class.java, SearchRule.jsonDeserializer)
-        .registerTypeAdapter(BookInfoRule::class.java, BookInfoRule.jsonDeserializer)
-        .registerTypeAdapter(TocRule::class.java, TocRule.jsonDeserializer)
-        .registerTypeAdapter(ContentRule::class.java, ContentRule.jsonDeserializer)
-        .registerTypeAdapter(ReviewRule::class.java, ReviewRule.jsonDeserializer)
-        .create()
+    INITIAL_GSON
 }
 
 val GSONStrict: Gson by lazy {

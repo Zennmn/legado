@@ -59,12 +59,12 @@ import androidx.core.util.component2
 import io.legado.app.help.TextViewTagHandler
 import io.legado.app.help.TextViewTagHandler.Companion.HR_PLACE_CHAR
 import io.legado.app.help.TextViewTagHandler.Companion.HR_PLACE_STR
-import io.legado.app.model.analyzeRule.AnalyzeUrl.Companion.paramPattern
 import io.legado.app.ui.book.read.page.entities.column.BaseColumn
 import io.legado.app.ui.book.read.page.entities.column.TextBaseColumn
 import io.legado.app.ui.book.read.page.provider.ChapterProvider.reviewChar
 import io.legado.app.utils.GSON
 import io.legado.app.utils.fromJsonObject
+import java.util.regex.Pattern
 
 class TextChapterLayout(
     scope: CoroutineScope,
@@ -73,6 +73,8 @@ class TextChapterLayout(
     private val book: Book,
     private val bookContent: BookContent,
 ) {
+
+    private val paramPattern = Pattern.compile(",\\{.*}$")
 
     @Volatile
     private var listener: LayoutProgressListener? = textChapter

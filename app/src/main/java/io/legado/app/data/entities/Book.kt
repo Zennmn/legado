@@ -12,11 +12,6 @@ import io.legado.app.constant.AppPattern
 import io.legado.app.constant.BookType
 import io.legado.app.constant.PageAnim
 import io.legado.app.data.appDb
-import io.legado.app.help.book.BookHelp
-import io.legado.app.help.book.ContentProcessor
-import io.legado.app.help.book.getFolderNameNoCache
-import io.legado.app.help.book.isEpub
-import io.legado.app.help.book.isImage
 import io.legado.app.help.book.simulatedTotalChapterNum
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.config.ReadBookConfig
@@ -36,125 +31,77 @@ import kotlin.math.max
     indices = [Index(value = ["name", "author"], unique = true)]
 )
 data class Book(
-    // 详情页Url(本地书源存储完整文件路径)
     @PrimaryKey
     @ColumnInfo(defaultValue = "")
-    override var bookUrl: String = "",
-    // 目录页Url (toc=table of Contents)
+    var bookUrl: String = "",
     @ColumnInfo(defaultValue = "")
     var tocUrl: String = "",
-    // 书源URL(默认BookType.local)
     @ColumnInfo(defaultValue = BookType.localTag)
     var origin: String = BookType.localTag,
-    //书源名称 or 本地书籍文件名
     @ColumnInfo(defaultValue = "")
     var originName: String = "",
-    // 书籍名称(书源获取)
     @ColumnInfo(defaultValue = "")
-    override var name: String = "",
-    // 作者名称(书源获取)
+    var name: String = "",
     @ColumnInfo(defaultValue = "")
-    override var author: String = "",
-    // 分类信息(书源获取)
-    override var kind: String? = null,
-    // 分类信息(用户修改)
+    var author: String = "",
+    var kind: String? = null,
     var customTag: String? = null,
-    // 封面Url(书源获取)
     var coverUrl: String? = null,
-    // 封面Url(用户修改)
     var customCoverUrl: String? = null,
-    // 简介内容(书源获取)
     var intro: String? = null,
-    // 简介内容(用户修改)
     var customIntro: String? = null,
-    // 自定义字符集名称(仅适用于本地书籍)
     var charset: String? = null,
-    // 类型,详见BookType
     @ColumnInfo(defaultValue = "0")
     var type: Int = BookType.text,
-    // 自定义分组索引号
     @ColumnInfo(defaultValue = "0")
     var group: Long = 0,
-    // 最新章节标题
     var latestChapterTitle: String? = null,
-    // 最新章节标题更新时间
     @ColumnInfo(defaultValue = "0")
     var latestChapterTime: Long = System.currentTimeMillis(),
-    // 最近一次更新书籍信息的时间
     @ColumnInfo(defaultValue = "0")
     var lastCheckTime: Long = System.currentTimeMillis(),
-    // 最近一次发现新章节的数量
     @ColumnInfo(defaultValue = "0")
     var lastCheckCount: Int = 0,
-    // 书籍目录总数
     @ColumnInfo(defaultValue = "0")
     var totalChapterNum: Int = 0,
-    // 当前章节名称
     var durChapterTitle: String? = null,
-    // 当前章节索引
     @ColumnInfo(defaultValue = "0")
     var durChapterIndex: Int = 0,
     @ColumnInfo(defaultValue = "0")
-    /**  当前卷索引  **/
     var durVolumeIndex: Int = 0,
     @ColumnInfo(defaultValue = "0")
-    /**  相对于卷的索引  **/
     var chapterInVolumeIndex: Int = 0,
-    // 当前阅读的进度(首行字符的索引位置)
     @ColumnInfo(defaultValue = "0")
     var durChapterPos: Int = 0,
-    // 最近一次阅读书籍的时间(打开正文的时间)
     @ColumnInfo(defaultValue = "0")
     var durChapterTime: Long = System.currentTimeMillis(),
-    //字数
-    override var wordCount: String? = null,
-    // 刷新书架时更新书籍信息
+    var wordCount: String? = null,
     @ColumnInfo(defaultValue = "1")
     var canUpdate: Boolean = true,
-    // 手动排序
     @ColumnInfo(defaultValue = "0")
     var order: Int = 0,
-    //书源排序
     @ColumnInfo(defaultValue = "0")
     var originOrder: Int = 0,
-    // 自定义书籍变量信息(用于书源规则检索书籍信息)
-    override var variable: String? = null,
-    //阅读设置
+    var variable: String? = null,
     var readConfig: ReadConfig? = null,
-    //同步时间
     @ColumnInfo(defaultValue = "0")
     var syncTime: Long = 0L
-) : Parcelable, BaseBook {
-
-    override fun equals(other: Any?): Boolean {
-        if (other is Book) {
-            return other.bookUrl == bookUrl
-        }
-        return false
-    }
-
-    override fun hashCode(): Int {
-        return bookUrl.hashCode()
-    }
+) : Parcelable {
 
     @delegate:Transient
     @delegate:Ignore
     @IgnoredOnParcel
-    override val variableMap: HashMap<String, String> by lazy {
+    val variableMap: HashMap<String, String> by lazy {
         GSON.fromJsonObject<HashMap<String, String>>(variable).getOrNull() ?: hashMapOf()
     }
 
     @Ignore
     @IgnoredOnParcel
-    override var infoHtml: String? = null
+    var infoHtml: String? = null
 
     @Ignore
     @IgnoredOnParcel
-    override var tocHtml: String? = null
-
-    @Ignore
-    @IgnoredOnParcel
-    var downloadUrls: List<String>? = null
+    var tocHtml: String? = null
 
     @Ignore
     @IgnoredOnParcel
@@ -162,248 +109,72 @@ data class Book(
 
     @get:Ignore
     @IgnoredOnParcel
-    val lastChapterIndex get() = totalChapterNum - 1
-
-    fun getRealAuthor() = author.replace(AppPattern.authorRegex, "")
-
-    fun getUnreadChapterNum() = max(simulatedTotalChapterNum() - durChapterIndex - 1, 0)
-
-    fun getDisplayCover() = if (customCoverUrl.isNullOrEmpty()) coverUrl else customCoverUrl
-
-    fun getDisplayIntro() = if (customIntro.isNullOrEmpty()) intro else customIntro
-
-    //自定义简介有自动更新的需求时，可通过更新intro再调用upCustomIntro()完成
-    @Suppress("unused")
-    fun upCustomIntro() {
-        customIntro = intro
-    }
-
-    fun fileCharset(): Charset {
-        return charset(charset ?: "UTF-8")
-    }
+    val lastChapterIndex: Int get() = totalChapterNum - 1
 
     @IgnoredOnParcel
     val config: ReadConfig
         get() {
-            if (readConfig == null) {
-                readConfig = ReadConfig()
-            }
+            if (readConfig == null) readConfig = ReadConfig()
             return readConfig!!
         }
 
-    fun setReverseToc(reverseToc: Boolean) {
-        config.reverseToc = reverseToc
-    }
+    override fun equals(other: Any?): Boolean = other is Book && other.bookUrl == bookUrl
+    override fun hashCode(): Int = bookUrl.hashCode()
 
-    fun getReverseToc(): Boolean {
-        return config.reverseToc
-    }
+    fun getRealAuthor(): String = author.replace(AppPattern.authorRegex, "")
+    fun getUnreadChapterNum(): Int = max(simulatedTotalChapterNum() - durChapterIndex - 1, 0)
+    fun getDisplayCover(): String? = customCoverUrl.takeUnless { it.isNullOrEmpty() } ?: coverUrl
+    fun getDisplayIntro(): String? = customIntro.takeUnless { it.isNullOrEmpty() } ?: intro
+    fun upCustomIntro() { customIntro = intro }
+    fun fileCharset(): Charset = Charset.forName(charset ?: "UTF-8")
 
-    fun setUseReplaceRule(useReplaceRule: Boolean) {
-        config.useReplaceRule = useReplaceRule
-    }
-
-    fun getUseReplaceRule(): Boolean {
-        val useReplaceRule = config.useReplaceRule
-        if (useReplaceRule != null) {
-            return useReplaceRule
-        }
-        //图片类书源 epub本地 默认关闭净化
-        if (isImage || isEpub) {
-            return false
-        }
-        return AppConfig.replaceEnableDefault
-    }
-
-    fun setReSegment(reSegment: Boolean) {
-        config.reSegment = reSegment
-    }
-
-    fun getReSegment(): Boolean {
-        return config.reSegment
-    }
-
-    fun setPageAnim(pageAnim: Int?) {
-        config.pageAnim = pageAnim
-    }
-
-    fun getPageAnim(): Int {
-        var pageAnim = config.pageAnim
-            ?: if (isImage) PageAnim.scrollPageAnim else ReadBookConfig.pageAnim
-        if (pageAnim < 0) {
-            pageAnim = ReadBookConfig.pageAnim
-        }
-        return pageAnim
-    }
-
-    fun setImageStyle(imageStyle: String?) {
-        config.imageStyle = imageStyle
-    }
-
-    fun getImageStyle(): String? {
-        return config.imageStyle
-    }
-
-    fun setTtsEngine(ttsEngine: String?) {
-        config.ttsEngine = ttsEngine
-    }
-
-    fun getTtsEngine(): String? {
-        return config.ttsEngine
-    }
-
-    fun setSplitLongChapter(limitLongContent: Boolean) {
-        config.splitLongChapter = limitLongContent
-    }
-
-    fun getSplitLongChapter(): Boolean {
-        return config.splitLongChapter
-    }
-
-    // readSimulating 的 setter 和 getter
-    fun setReadSimulating(readSimulating: Boolean) {
-        config.readSimulating = readSimulating
-    }
-
-    fun getReadSimulating(): Boolean {
-        return config.readSimulating
-    }
-
-    // startDate 的 setter 和 getter
-    fun setStartDate(startDate: LocalDate?) {
-        config.startDate = startDate
-    }
-
-    fun getStartDate(): LocalDate? {
-        if (!config.readSimulating || config.startDate == null) {
-            return LocalDate.now()
-        }
-        return config.startDate
-    }
-
-    // startChapter 的 setter 和 getter
-    fun setStartChapter(startChapter: Int) {
-        config.startChapter = startChapter
-    }
-
-    fun getStartChapter(): Int {
-        if (config.readSimulating) return config.startChapter ?: 0
-        return this.durChapterIndex
-    }
-
-    // dailyChapters 的 setter 和 getter
-    fun setDailyChapters(dailyChapters: Int) {
-        config.dailyChapters = dailyChapters
-    }
-
-    fun getDailyChapters(): Int {
-        return config.dailyChapters
-    }
-
-    // 片头 的 setter 和 getter
-    fun setOpenCredits(openCredits: Int) {
-        config.openCredits = openCredits
-    }
-
-    fun getOpenCredits(): Int {
-        return config.openCredits
-    }
-    // 片尾 的 setter 和 getter
-    fun setCloseCredits(closeCredits: Int) {
-        config.closeCredits = closeCredits
-    }
-
-    fun getCloseCredits(): Int {
-        return config.closeCredits
-    }
-
-    // 播放模式 的 setter 和 getter
-    fun setPlayMode(playMode: Int) {
-        config.playMode = playMode
-    }
-
-    fun getPlayMode(): Int {
-        return config.playMode
-    }
-
-    // 播放速度 的 setter 和 getter
-    fun setPlaySpeed(playSpeed: Float) {
-        config.playSpeed = playSpeed
-    }
-
-    fun getPlaySpeed(): Float {
-        return config.playSpeed
-    }
-
-    fun getDelTag(tag: Long): Boolean {
-        return config.delTag and tag == tag
-    }
-
-    fun addDelTag(tag: Long) {
-        config.delTag = config.delTag and tag
-    }
-
-    fun removeDelTag(tag: Long) {
-        config.delTag = config.delTag and tag.inv()
-    }
+    fun setReverseToc(reverseToc: Boolean) { config.reverseToc = reverseToc }
+    fun getReverseToc(): Boolean = config.reverseToc
+    fun setUseReplaceRule(useReplaceRule: Boolean) { config.useReplaceRule = useReplaceRule }
+    fun getUseReplaceRule(): Boolean = config.useReplaceRule ?: AppConfig.replaceEnableDefault
+    fun setReSegment(reSegment: Boolean) { config.reSegment = reSegment }
+    fun getReSegment(): Boolean = config.reSegment
+    fun setPageAnim(pageAnim: Int?) { config.pageAnim = pageAnim }
+    fun getPageAnim(): Int = (config.pageAnim ?: ReadBookConfig.pageAnim).takeIf { it >= 0 }
+        ?: ReadBookConfig.pageAnim
+    fun setImageStyle(imageStyle: String?) { config.imageStyle = imageStyle }
+    fun getImageStyle(): String? = config.imageStyle
+    fun setTtsEngine(ttsEngine: String?) { config.ttsEngine = ttsEngine }
+    fun getTtsEngine(): String? = config.ttsEngine
+    fun setSplitLongChapter(limitLongContent: Boolean) { config.splitLongChapter = limitLongContent }
+    fun getSplitLongChapter(): Boolean = config.splitLongChapter
+    fun setReadSimulating(readSimulating: Boolean) { config.readSimulating = readSimulating }
+    fun getReadSimulating(): Boolean = config.readSimulating
+    fun setStartDate(startDate: LocalDate?) { config.startDate = startDate }
+    fun getStartDate(): LocalDate? = if (config.readSimulating) config.startDate ?: LocalDate.now() else LocalDate.now()
+    fun setStartChapter(startChapter: Int) { config.startChapter = startChapter }
+    fun getStartChapter(): Int = if (config.readSimulating) config.startChapter ?: 0 else durChapterIndex
+    fun setDailyChapters(dailyChapters: Int) { config.dailyChapters = dailyChapters }
+    fun getDailyChapters(): Int = config.dailyChapters
+    fun setOpenCredits(openCredits: Int) { config.openCredits = openCredits }
+    fun getOpenCredits(): Int = config.openCredits
+    fun setCloseCredits(closeCredits: Int) { config.closeCredits = closeCredits }
+    fun getCloseCredits(): Int = config.closeCredits
+    fun setPlayMode(playMode: Int) { config.playMode = playMode }
+    fun getPlayMode(): Int = config.playMode
+    fun setPlaySpeed(playSpeed: Float) { config.playSpeed = playSpeed }
+    fun getPlaySpeed(): Float = config.playSpeed
+    fun getDelTag(tag: Long): Boolean = config.delTag and tag == tag
+    fun addDelTag(tag: Long) { config.delTag = config.delTag or tag }
+    fun removeDelTag(tag: Long) { config.delTag = config.delTag and tag.inv() }
 
     fun getFolderName(): String {
-        folderName?.let {
-            return it
-        }
-        //防止书名过长,只取9位
-        folderName = getFolderNameNoCache()
+        folderName?.let { return it }
+        folderName = name.take(9) + bookUrl.hashCode().toString().replace("-", "")
         return folderName!!
     }
 
-    fun toSearchBook() = SearchBook(
-        name = name,
-        author = author,
-        kind = kind,
-        bookUrl = bookUrl,
-        origin = origin,
-        originName = originName,
-        type = type,
-        wordCount = wordCount,
-        latestChapterTitle = latestChapterTitle,
-        coverUrl = coverUrl,
-        intro = intro,
-        tocUrl = tocUrl,
-        originOrder = originOrder,
-        variable = variable
-    ).apply {
-        this.infoHtml = this@Book.infoHtml
-        this.tocHtml = this@Book.tocHtml
-    }
+    fun toReplaceBook(): Any? = null
 
-    fun toReplaceBook() = ReplaceBook(
-        name = name,
-        author = author,
-        kind = kind,
-        bookUrl = bookUrl,
-        origin = origin,
-        originName = originName,
-        type = type,
-        wordCount = wordCount,
-        latestChapterTitle = latestChapterTitle,
-        coverUrl = coverUrl,
-        intro = intro,
-        tocUrl = tocUrl,
-        originOrder = originOrder
-    )
-
-    /**
-     * 迁移旧的书籍的一些信息到新的书籍中
-     */
     fun migrateTo(newBook: Book, toc: List<BookChapter>): Book {
         if (toc.isNotEmpty()) {
-            newBook.durChapterIndex = BookHelp
-                .getDurChapter(durChapterIndex, durChapterTitle, toc, totalChapterNum)
-            newBook.durChapterTitle = toc[newBook.durChapterIndex].getDisplayTitle(
-                ContentProcessor.get(newBook.name, newBook.origin).getTitleReplaceRules(),
-                getUseReplaceRule(),
-                replaceBook = toReplaceBook()
-            )
+            newBook.durChapterIndex = durChapterIndex.coerceIn(0, toc.lastIndex)
+            newBook.durChapterTitle = toc[newBook.durChapterIndex].getDisplayTitle()
             newBook.durChapterPos = durChapterPos
         }
         newBook.durChapterTime = durChapterTime
@@ -417,29 +188,17 @@ data class Book(
         return newBook
     }
 
-    fun createBookMark(): Bookmark {
-        return Bookmark(
-            bookName = name,
-            bookAuthor = author,
-        )
-    }
+    fun createBookMark(): Bookmark = Bookmark(bookName = name, bookAuthor = author)
 
     fun save() {
-        if (appDb.bookDao.has(bookUrl)) {
-            appDb.bookDao.update(this)
-        } else {
-            appDb.bookDao.insert(this)
-        }
+        if (appDb.bookDao.has(bookUrl)) appDb.bookDao.update(this) else appDb.bookDao.insert(this)
     }
 
     fun delete() {
-        if (ReadBook.book?.bookUrl == bookUrl) {
-            ReadBook.book = null
-        }
+        if (ReadBook.book?.bookUrl == bookUrl) ReadBook.book = null
         appDb.bookDao.delete(this)
     }
 
-    @Suppress("ConstPropertyName")
     companion object {
         const val hTag = 2L
         const val rubyTag = 4L
@@ -455,26 +214,25 @@ data class Book(
         var pageAnim: Int? = null,
         var reSegment: Boolean = false,
         var imageStyle: String? = null,
-        var useReplaceRule: Boolean? = null,// 正文使用净化替换规则
-        var delTag: Long = 0L,//去除标签
+        var useReplaceRule: Boolean? = null,
+        var delTag: Long = 0L,
         var ttsEngine: String? = null,
         var splitLongChapter: Boolean = true,
         var readSimulating: Boolean = false,
         var startDate: LocalDate? = null,
-        var startChapter: Int? = null,     // 用户设置的起始章节
-        var dailyChapters: Int = 3,    // 用户设置的每日更新章节数
-        var openCredits: Int = 0,       //音频片头
-        var closeCredits: Int = 0,       //音频片尾
-        var playMode: Int = 0,           //音频播放模式
-        var playSpeed: Float = 1.0f      //音频播放速度
+        var startChapter: Int? = null,
+        var dailyChapters: Int = 3,
+        var openCredits: Int = 0,
+        var closeCredits: Int = 0,
+        var playMode: Int = 0,
+        var playSpeed: Float = 1.0f
     ) : Parcelable
 
     class Converters {
-
         @TypeConverter
         fun readConfigToString(config: ReadConfig?): String = GSON.toJson(config)
 
         @TypeConverter
-        fun stringToReadConfig(json: String?) = GSON.fromJsonObject<ReadConfig>(json).getOrNull()
+        fun stringToReadConfig(json: String?): ReadConfig? = GSON.fromJsonObject<ReadConfig>(json).getOrNull()
     }
 }

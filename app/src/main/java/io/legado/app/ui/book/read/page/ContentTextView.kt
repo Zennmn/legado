@@ -8,10 +8,8 @@ import android.view.MotionEvent
 import android.view.View
 import io.legado.app.R
 import io.legado.app.data.entities.Bookmark
-import io.legado.app.help.book.isOnLineTxt
 import io.legado.app.help.config.AppConfig
 import io.legado.app.model.ReadBook
-import io.legado.app.ui.association.OpenUrlConfirmActivity
 import io.legado.app.ui.book.read.page.delegate.PageDelegate
 import io.legado.app.ui.book.read.page.entities.TextLine
 import io.legado.app.ui.book.read.page.entities.TextPage
@@ -25,12 +23,9 @@ import io.legado.app.ui.book.read.page.entities.column.TextBaseColumn
 import io.legado.app.ui.book.read.page.entities.column.TextColumn
 import io.legado.app.ui.book.read.page.provider.ChapterProvider
 import io.legado.app.ui.book.read.page.provider.TextPageFactory
-import io.legado.app.ui.widget.dialog.PhotoDialog
 import io.legado.app.utils.activity
 import io.legado.app.utils.dpToPx
 import io.legado.app.utils.getCompatColor
-import io.legado.app.utils.showDialogFragment
-import io.legado.app.utils.startActivity
 import io.legado.app.utils.toastOnUi
 import java.util.concurrent.Executors
 import kotlin.math.max
@@ -264,56 +259,9 @@ class ContentTextView(context: Context, attrs: AttributeSet?) : View(context, at
                     handled = true
                 }
 
-                is ImageColumn -> when (AppConfig.clickImgWay) {
-                    "1" -> { //预览图片
-                        activity?.showDialogFragment(PhotoDialog(column.src, isBook = true))
-                        handled = true
-                    }
-                    "2" -> { //兼容处理
-                        if (!debounceClick) {
-                            if (ReadBook.book?.isOnLineTxt == true) {
-                                val click = column.click
-                                val src = column.src
-                                if (!click.isNullOrBlank()) {
-                                    callBack.clickImg(click, src)
-                                    handled = true
-                                } else {
-                                    handled = callBack.oldClickImg(src)
-                                }
-                            }
-                        }
-                    }
-                    "3" -> { //关闭
-                        handled = false
-                    }
-                    "4" -> { //双击
-                        if (doubleClick) {
-                            val click = column.click
-                            if (!click.isNullOrBlank()) {
-                                callBack.clickImg(click, column.src)
-                                handled = true
-                            }
-                        } else {
-                            handled = true
-                        }
-                    }
-                    else -> { //默认点击
-                        if (!debounceClick) {
-                            val click = column.click
-                            if (!click.isNullOrBlank()) {
-                                callBack.clickImg(click, column.src)
-                                handled = true
-                            }
-                        }
-                    }
-                }
+                is ImageColumn -> handled = false
                 is TextHtmlColumn -> {
-                    column.linkUrl?.let {
-                        activity?.startActivity<OpenUrlConfirmActivity> {
-                            putExtra("uri", it)
-                        }
-                        handled = true
-                    }
+                    handled = false
                 }
             }
         }

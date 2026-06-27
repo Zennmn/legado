@@ -6,7 +6,6 @@ import android.provider.Settings
 import androidx.annotation.Keep
 import cn.hutool.crypto.digest.DigestUtil
 import io.legado.app.BuildConfig
-import io.legado.app.help.update.AppVariant
 import org.apache.commons.lang3.time.FastDateFormat
 import splitties.init.appCtx
 
@@ -103,6 +102,10 @@ object AppConst {
         var versionName: String = "",
         var appVariant: AppVariant = AppVariant.UNKNOWN
     )
+
+    enum class AppVariant {
+        UNKNOWN, OFFICIAL, BETA_RELEASE, BETA_RELEASEA, BETA_RELEASES
+    }
 
     /**
      * The authority of a FileProvider defined in a <provider> element in your app's manifest.

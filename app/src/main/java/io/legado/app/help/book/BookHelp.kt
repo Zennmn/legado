@@ -3,25 +3,20 @@ package io.legado.app.help.book
 import android.graphics.BitmapFactory
 import android.os.ParcelFileDescriptor
 import androidx.documentfile.provider.DocumentFile
-import com.script.rhino.runScriptWithContext
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.AppPattern
 import io.legado.app.constant.EventBus
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
-import io.legado.app.data.entities.BookSource
 import io.legado.app.help.config.AppConfig
-import io.legado.app.model.analyzeRule.AnalyzeUrl
 import io.legado.app.model.localBook.LocalBook
 import io.legado.app.utils.ArchiveUtils
 import io.legado.app.utils.FileUtils
-import io.legado.app.utils.ImageUtils
 import io.legado.app.utils.MD5Utils
 import io.legado.app.utils.NetworkUtils
 import io.legado.app.utils.StringUtils
 import io.legado.app.utils.SvgUtils
-import io.legado.app.utils.UrlUtil
 import io.legado.app.utils.createFileIfNotExist
 import io.legado.app.utils.exists
 import io.legado.app.utils.externalFiles
@@ -158,7 +153,6 @@ object BookHelp {
     }
 
     suspend fun saveContent(
-        bookSource: BookSource,
         book: Book,
         bookChapter: BookChapter,
         content: String
@@ -205,61 +199,19 @@ object BookHelp {
     }
 
     suspend fun saveImages(
-        bookSource: BookSource,
+        bookSource: Any?,
         book: Book,
         bookChapter: BookChapter,
         content: String,
-        concurrency: Int = AppConfig.threadCount
-    ) = coroutineScope {
-        flowImages(bookChapter, content).onEachParallel(concurrency) { mSrc ->
-            saveImage(bookSource, book, mSrc, bookChapter)
-        }.collect()
-    }
+        concurrency: Int = 1
+    ) = Unit
 
     suspend fun saveImage(
-        bookSource: BookSource?,
+        bookSource: Any?,
         book: Book,
         src: String,
         chapter: BookChapter? = null
-    ) {
-        if (isImageExist(book, src)) {
-            return
-        }
-        val mutex = synchronized(this) {
-            downloadImages.getOrPut(src) { Mutex() }
-        }
-        mutex.lock()
-        try {
-            if (isImageExist(book, src)) {
-                return
-            }
-            val analyzeUrl = AnalyzeUrl(
-                src, source = bookSource, coroutineContext = currentCoroutineContext()
-            )
-            val bytes = analyzeUrl.getByteArrayAwait()
-            //某些图片被加密，需要进一步解密
-            runScriptWithContext {
-                ImageUtils.decode(
-                    src, bytes, isCover = false, bookSource, book
-                )
-            }?.let {
-                if (!checkImage(it)) {
-                    // 如果部分图片失效，每次进入正文都会花很长时间再次获取图片数据
-                    // 所以无论如何都要将数据写入到文件里
-                    // throw NoStackTraceException("数据异常")
-                    AppLog.put("${book.name} ${chapter?.title} 图片 $src 下载错误 数据异常")
-                }
-                writeImage(book, src, it)
-            }
-        } catch (e: Exception) {
-            currentCoroutineContext().ensureActive()
-            val msg = "${book.name} ${chapter?.title} 图片 $src 下载失败\n${e.localizedMessage}"
-            AppLog.put(msg, e)
-        } finally {
-            downloadImages.remove(src)
-            mutex.unlock()
-        }
-    }
+    ) = Unit
 
     fun getImage(book: Book, src: String): File {
         return downloadDir.getFile(
@@ -281,7 +233,15 @@ object BookHelp {
     }
 
     fun getImageSuffix(src: String): String {
-        return UrlUtil.getSuffix(src, "jpg")
+        val suffix = src.substringAfterLast("/")
+            .substringBefore("?")
+            .substringBefore("#")
+            .substringAfterLast(".", "")
+        return if (suffix.length in 1..5 && suffix.matches(Regex("^[a-z\\d]+$", RegexOption.IGNORE_CASE))) {
+            suffix
+        } else {
+            "jpg"
+        }
     }
 
     @Throws(IOException::class, FileNotFoundException::class)

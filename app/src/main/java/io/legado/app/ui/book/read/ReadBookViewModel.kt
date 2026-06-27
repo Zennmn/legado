@@ -15,7 +15,6 @@ import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.BookProgress
 import io.legado.app.exception.NoStackTraceException
-import io.legado.app.help.AppWebDav
 import io.legado.app.help.book.BookHelp
 import io.legado.app.help.book.ContentProcessor
 import io.legado.app.help.book.isLocal
@@ -229,29 +228,7 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
     fun syncBookProgress(
         book: Book,
         alertSync: ((progress: BookProgress) -> Unit)? = null
-    ) {
-        if (!AppConfig.syncBookProgress) return
-        execute {
-            AppWebDav.getBookProgress(book)
-        }.onError {
-            AppLog.put("拉取阅读进度失败《${book.name}》\n${it.localizedMessage}", it)
-        }.onSuccess { progress ->
-            progress ?: return@onSuccess
-            if (progress.durChapterIndex == book.durChapterIndex && progress.durChapterPos == book.durChapterPos) {
-                return@onSuccess
-            }
-            if (progress.durChapterIndex < book.durChapterIndex ||
-                (progress.durChapterIndex == book.durChapterIndex
-                        && progress.durChapterPos < book.durChapterPos)
-            ) {
-                alertSync?.invoke(progress)
-            } else if (progress.durChapterIndex < book.simulatedTotalChapterNum()) {
-                ReadBook.setProgress(progress)
-                AppLog.put("自动同步阅读进度成功《${book.name}》 ${progress.durChapterTitle}")
-                context.toastOnUi("已同步最新阅读进度")
-            }
-        }
-    }
+    ) = Unit
 
     /**
      * 换源
@@ -291,9 +268,7 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
 
     fun upBookSource(success: (() -> Unit)?) {
         execute {
-            ReadBook.book?.let { book ->
-                ReadBook.bookSource = appDb.bookSourceDao.getBookSource(book.origin)
-            }
+            ReadBook.bookSource = null
         }.onSuccess {
             success?.invoke()
         }
@@ -501,14 +476,7 @@ class ReadBookViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    fun disableSource() {
-        execute {
-            ReadBook.bookSource?.let {
-                it.enabled = false
-                appDb.bookSourceDao.update(it)
-            }
-        }
-    }
+    fun disableSource() = Unit
 
     override fun onCleared() {
         super.onCleared()

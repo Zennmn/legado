@@ -5,27 +5,16 @@ import android.graphics.BitmapFactory
 import android.util.Size
 import androidx.collection.LruCache
 import io.legado.app.R
-import io.legado.app.constant.AppLog.putDebug
 import io.legado.app.data.entities.Book
-import io.legado.app.data.entities.BookSource
 import io.legado.app.exception.NoStackTraceException
-import io.legado.app.help.book.BookHelp
-import io.legado.app.help.book.isEpub
-import io.legado.app.help.book.isMobi
-import io.legado.app.help.book.isPdf
 import io.legado.app.help.config.AppConfig
-import io.legado.app.model.localBook.EpubFile
-import io.legado.app.model.localBook.MobiFile
-import io.legado.app.model.localBook.PdfFile
 import io.legado.app.utils.BitmapUtils
-import io.legado.app.utils.FileUtils
 import io.legado.app.utils.SvgUtils
 import io.legado.app.utils.toastOnUi
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import splitties.init.appCtx
 import java.io.File
-import java.io.FileOutputStream
 import kotlin.math.min
 
 object ImageProvider {
@@ -124,29 +113,9 @@ object ImageProvider {
     suspend fun cacheImage(
         book: Book,
         src: String,
-        bookSource: BookSource?
+        bookSource: Any?
     ): File {
-        return withContext(IO) {
-            val vFile = BookHelp.getImage(book, src)
-            if (!BookHelp.isImageExist(book, src)) {
-                val inputStream = when {
-                    book.isEpub -> EpubFile.getImage(book, src)
-                    book.isPdf -> PdfFile.getImage(book, src)
-                    book.isMobi -> MobiFile.getImage(book, src)
-                    else -> {
-                        BookHelp.saveImage(bookSource, book, src)
-                        null
-                    }
-                }
-                inputStream?.use { input ->
-                    val newFile = FileUtils.createFileIfNotExist(vFile.absolutePath)
-                    FileOutputStream(newFile).use { output ->
-                        input.copyTo(output)
-                    }
-                }
-            }
-            return@withContext vFile
-        }
+        return withContext(IO) { File(src) }
     }
 
     /**
@@ -155,22 +124,9 @@ object ImageProvider {
     suspend fun getImageSize(
         book: Book,
         src: String,
-        bookSource: BookSource?
+        bookSource: Any?
     ): Size {
-        val file = cacheImage(book, src, bookSource)
-        val op = BitmapFactory.Options()
-        // inJustDecodeBounds如果设置为true,仅仅返回图片实际的宽和高,宽和高是赋值给opts.outWidth,opts.outHeight;
-        op.inJustDecodeBounds = true
-        BitmapFactory.decodeFile(file.absolutePath, op)
-        if (op.outWidth < 1 && op.outHeight < 1) {
-            //svg size
-            val size = SvgUtils.getSize(file.absolutePath)
-            if (size != null) return size
-            putDebug("ImageProvider: $src Unsupported image type")
-            //file.delete() 重复下载
-            return Size(errorBitmap.width, errorBitmap.height)
-        }
-        return Size(op.outWidth, op.outHeight)
+        return Size(errorBitmap.width, errorBitmap.height)
     }
 
     /**
@@ -187,7 +143,7 @@ object ImageProvider {
             book.setUseReplaceRule(false)
             appCtx.toastOnUi(R.string.error_image_url_empty)
         }
-        val vFile = BookHelp.getImage(book, src)
+        val vFile = File(src)
         if (!vFile.exists()) return errorBitmap
         //epub文件提供图片链接是相对链接，同时阅读多个epub文件，缓存命中错误
         //bitmapLruCache的key同一改成缓存文件的路径

@@ -14,7 +14,6 @@ import io.legado.app.constant.PreferKey
 import io.legado.app.constant.Theme
 import io.legado.app.help.DefaultData
 import io.legado.app.lib.theme.ThemeStore
-import io.legado.app.model.BookCover
 import io.legado.app.utils.BitmapUtils
 import io.legado.app.utils.ColorUtils
 import io.legado.app.utils.FileUtils
@@ -36,8 +35,6 @@ import splitties.init.appCtx
 import java.io.File
 import androidx.core.graphics.drawable.toDrawable
 import io.legado.app.help.coroutine.Coroutine
-import io.legado.app.help.http.newCallResponse
-import io.legado.app.help.http.okHttpClient
 import io.legado.app.utils.MD5Utils
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.putPrefBoolean
@@ -69,7 +66,6 @@ object ThemeConfig {
     fun applyDayNight(context: Context) {
         applyTheme(context)
         initNightMode()
-        BookCover.upDefaultCover()
         postEvent(EventBus.RECREATE, "")
     }
 
@@ -252,23 +248,7 @@ object ThemeConfig {
                 }
                 val fileImg = File(fileFold, name)
                 if (!fileImg.exists()) {
-                    appCtx.toastOnUi("下载背景图片中...")
-                    Coroutine.async {
-                        kotlin.runCatching {
-                            val res = okHttpClient.newCallResponse(0) {
-                                url(backgroundPath)
-                            }
-                            res.body.byteStream().use { inputStream ->
-                                FileOutputStream(fileImg).use { outputStream ->
-                                    inputStream.copyTo(outputStream)
-                                }
-                            }
-                        }.onSuccess {
-                            appCtx.toastOnUi("背景图下载成功\n请重新应用主题")
-                        }.onFailure {
-                            appCtx.toastOnUi(it.localizedMessage)
-                        }
-                    }
+                    appCtx.toastOnUi("离线版不支持下载背景图片")
                     return
                 }
             }
