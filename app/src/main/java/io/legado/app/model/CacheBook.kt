@@ -3,26 +3,18 @@ package io.legado.app.model
 import android.content.Context
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.EventBus
-import io.legado.app.constant.IntentAction
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookChapter
 import io.legado.app.data.entities.BookSource
 import io.legado.app.exception.ConcurrentException
 import io.legado.app.help.book.BookHelp
-import io.legado.app.help.book.isLocal
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.coroutine.CompositeCoroutine
 import io.legado.app.help.coroutine.Coroutine
-import io.legado.app.model.webBook.WebBook
-import io.legado.app.service.CacheBookService
 import io.legado.app.utils.onEachParallel
 import io.legado.app.utils.postEvent
-import io.legado.app.utils.startService
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -352,30 +344,9 @@ object CacheBook {
                 }
                 return
             }
-            WebBook.getContent(
-                scope,
-                bookSource,
-                book,
-                chapter,
-                context = context,
-                start = CoroutineStart.LAZY,
-                executeContext = context
-            ).onSuccess { content ->
-                onSuccess(chapter)
-                downloadFinish(chapter, content)
-            }.onError {
-                onPreError(chapter, it)
-                //出现错误等待一秒后重新加入待下载列表
-                delay(1000)
-                onPostError(chapter, it)
-                downloadFinish(chapter, "获取正文失败\n${it.localizedMessage}")
-            }.onCancel {
-                onCancel(chapterIndex)
-            }.onFinally {
-                onFinally()
-            }.apply {
-                tasks.add(this)
-            }.start()
+            downloadFinish(chapter, "离线手表版不支持在线缓存")
+            onSuccess(chapter)
+            return
         }
 
         suspend fun downloadAwait(chapter: BookChapter): String {
@@ -383,23 +354,11 @@ object CacheBook {
                 onDownloadSet.add(chapter.index)
                 waitDownloadSet.remove(chapter.index)
             }
-            try {
-                val content = WebBook.getContentAwait(bookSource, book, chapter)
-                onSuccess(chapter)
-                ReadBook.downloadedChapters.add(chapter.index)
-                ReadBook.downloadFailChapters.remove(chapter.index)
-                return content
-            } catch (e: Exception) {
-                if (e is CancellationException) {
-                    onCancel(chapter.index)
-                }
-                onError(chapter, e)
-                ReadBook.downloadFailChapters[chapter.index] =
-                    (ReadBook.downloadFailChapters[chapter.index] ?: 0) + 1
-                return "获取正文失败\n${e.localizedMessage}"
-            } finally {
-                postEvent(EventBus.UP_DOWNLOAD, book.bookUrl)
-            }
+            // ponytail: offline mode, no online download
+            onSuccess(chapter)
+            ReadBook.downloadedChapters.add(chapter.index)
+            ReadBook.downloadFailChapters.remove(chapter.index)
+            return "离线手表版不支持在线缓存"
         }
 
         @Synchronized
@@ -414,30 +373,12 @@ object CacheBook {
             }
             onDownloadSet.add(chapter.index)
             waitDownloadSet.remove(chapter.index)
-            WebBook.getContent(
-                scope,
-                bookSource,
-                book,
-                chapter,
-                start = CoroutineStart.LAZY,
-                executeContext = IO,
-                semaphore = semaphore
-            ).onSuccess { content ->
-                onSuccess(chapter)
-                ReadBook.downloadedChapters.add(chapter.index)
-                ReadBook.downloadFailChapters.remove(chapter.index)
-                downloadFinish(chapter, content, resetPageOffset)
-            }.onError {
-                onError(chapter, it)
-                ReadBook.downloadFailChapters[chapter.index] =
-                    (ReadBook.downloadFailChapters[chapter.index] ?: 0) + 1
-                downloadFinish(chapter, "获取正文失败\n${it.localizedMessage}", resetPageOffset)
-            }.onCancel {
-                onCancel(chapter.index)
-                downloadFinish(chapter, "download canceled", resetPageOffset, true)
-            }.onFinally {
-                postEvent(EventBus.UP_DOWNLOAD, book.bookUrl)
-            }.start()
+            // ponytail: offline mode, no online download
+            onSuccess(chapter)
+            ReadBook.downloadedChapters.add(chapter.index)
+            ReadBook.downloadFailChapters.remove(chapter.index)
+            downloadFinish(chapter, "离线手表版不支持在线缓存", resetPageOffset)
+            postEvent(EventBus.UP_DOWNLOAD, book.bookUrl)
         }
 
         private fun downloadFinish(
