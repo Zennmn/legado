@@ -44,6 +44,18 @@
                 android:text="@string/refresh"
                 android:textColor="@color/watch_text_primary"
                 android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_about"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:gravity="center"
+                android:minWidth="48dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="关于"
+                android:textColor="@color/watch_text_secondary"
+                android:textSize="13sp" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

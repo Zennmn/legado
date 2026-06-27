@@ -15,6 +15,8 @@ import io.legado.app.utils.gone
 import io.legado.app.utils.startActivityForBook
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
+import io.legado.app.ui.watch.about.WatchAboutActivity
+import io.legado.app.utils.startActivity
 import io.legado.app.utils.visible
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -74,6 +76,9 @@ class WatchBookshelfActivity :
         recyclerView.adapter = adapter
         tvScan.setOnClickListener {
             requestStorageAndScan()
+        }
+        tvAbout.setOnClickListener {
+            startActivity<WatchAboutActivity>()
         }
     }
 
