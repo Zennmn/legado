@@ -13,7 +13,7 @@ class WatchAboutActivity : BaseActivity<ActivityWatchAboutBinding>() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         binding.tvTitle.text = "阅读手表版"
         binding.tvVersion.text = "v${BuildConfig.VERSION_NAME}"
-        binding.tvBody.text = "一款专为圆屏手表设计的离线 TXT 阅读器。\n\n把 txt 小说放进手表的 Download 文件夹，打开应用即可自动导入。\n\n支持翻页阅读、章节目录、字号和亮度调节，完全离线，无需联网。"
+        binding.tvBody.text = "专为圆屏手表设计的离线 TXT 阅读器。\n\n把 txt 放进 Download 文件夹即可自动导入。\n\n支持翻页、目录、字号和亮度调节，完全离线。"
         binding.root.setOnClickListener { finish() }
     }
 }

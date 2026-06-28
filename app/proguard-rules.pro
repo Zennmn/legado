@@ -170,3 +170,9 @@ cn.hutool.core.util.**{*;}
     public <init>(android.content.Context, android.util.AttributeSet);
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
+
+# keep custom views instantiated from XML layouts
+-keep class io.legado.app.ui.watch.** { *; }
+-keep class io.legado.app.ui.book.read.page.** { *; }
+-keep class io.legado.app.ui.book.read.WatchReadMenu { *; }
+-keep class io.legado.app.databinding.** { *; }

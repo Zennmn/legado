@@ -5,7 +5,10 @@
     android:background="@color/watch_oled_black"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="32dp">
+    android:paddingStart="36dp"
+    android:paddingTop="30dp"
+    android:paddingEnd="36dp"
+    android:paddingBottom="30dp">
 
     <TextView
         android:id="@+id/tv_title"
@@ -33,5 +36,5 @@
         android:gravity="center"
         android:lineSpacingExtra="3dp"
         android:textColor="@color/watch_text_primary"
-        android:textSize="13sp" />
+        android:textSize="12sp" />
 </LinearLayout>
