@@ -11,13 +11,16 @@ class EdgeSwipeBackLayout @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
 
+    private val edgeWidthPx = 48.dpToPx().toFloat()
     private val detector = EdgeSwipeBackDetector(
-        edgeWidthPx = 32.dpToPx().toFloat(),
-        minDistancePx = 64.dpToPx().toFloat(),
+        edgeWidthPx = edgeWidthPx,
+        minDistancePx = 48.dpToPx().toFloat(),
         maxVerticalDriftPx = 48.dpToPx().toFloat()
     )
     private var startX = 0f
     private var startY = 0f
+    private var isTrackingEdgeSwipe = false
+    private var hasTriggeredBack = false
     private var onBack: (() -> Unit)? = null
 
     fun setOnEdgeBack(action: () -> Unit) {
@@ -29,13 +32,26 @@ class EdgeSwipeBackLayout @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 startX = ev.x
                 startY = ev.y
+                isTrackingEdgeSwipe = startX <= edgeWidthPx
+                hasTriggeredBack = false
+                val handled = super.dispatchTouchEvent(ev)
+                return handled || isTrackingEdgeSwipe
             }
 
-            MotionEvent.ACTION_UP -> {
-                if (detector.shouldBack(startX, startY, ev.x, ev.y)) {
+            MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP -> {
+                if (isTrackingEdgeSwipe && !hasTriggeredBack && detector.shouldBack(startX, startY, ev.x, ev.y)) {
+                    hasTriggeredBack = true
                     onBack?.invoke()
                     return true
                 }
+                if (ev.actionMasked == MotionEvent.ACTION_UP) {
+                    isTrackingEdgeSwipe = false
+                }
+            }
+
+            MotionEvent.ACTION_CANCEL -> {
+                isTrackingEdgeSwipe = false
+                hasTriggeredBack = false
             }
         }
         return super.dispatchTouchEvent(ev)

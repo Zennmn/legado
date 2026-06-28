@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/watch_oled_black"
-    android:paddingStart="18dp"
-    android:paddingTop="18dp"
-    android:paddingEnd="18dp"
-    android:paddingBottom="18dp">
+    android:paddingStart="30dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="30dp"
+    android:paddingBottom="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -38,9 +38,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:gravity="center"
-                android:minWidth="64dp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
+                android:minWidth="48dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="@string/refresh"
                 android:textColor="@color/watch_text_primary"
                 android:textSize="14sp" />
@@ -50,9 +50,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:gravity="center"
-                android:minWidth="48dp"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
+                android:minWidth="40dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
                 android:text="关于"
                 android:textColor="@color/watch_text_secondary"
                 android:textSize="13sp" />
