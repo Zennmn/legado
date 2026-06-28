@@ -121,6 +121,7 @@ class WatchReadMenu @JvmOverloads constructor(
     }
 
     private fun changeBrightness(delta: Int) {
+        AppConfig.readBrightnessFollowSystem = false
         AppConfig.readBrightness = WatchReaderControls.nextBrightness(AppConfig.readBrightness, delta)
         applyBrightnessToWindow()
         upNumbers()
@@ -129,9 +130,10 @@ class WatchReadMenu @JvmOverloads constructor(
     private fun applyBrightnessToWindow() {
         activity?.window?.let { window ->
             val params = window.attributes
-            params.screenBrightness = (AppConfig.readBrightness / 255f)
-                .coerceAtLeast(0.004f)
-                .coerceAtMost(1f)
+            params.screenBrightness = WatchReaderControls.windowBrightness(
+                AppConfig.readBrightness,
+                AppConfig.readBrightnessFollowSystem
+            )
             window.attributes = params
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
@@ -139,7 +141,7 @@ class WatchReadMenu @JvmOverloads constructor(
 
     private fun upNumbers() = binding.run {
         tvTextSize.text = ReadBookConfig.durConfig.textSize.toString()
-        tvBrightness.text = AppConfig.readBrightness.toString()
+        tvBrightness.text = if (AppConfig.readBrightnessFollowSystem) "自动" else AppConfig.readBrightness.toString()
     }
 
     interface CallBack {

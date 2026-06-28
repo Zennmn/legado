@@ -175,4 +175,5 @@ cn.hutool.core.util.**{*;}
 -keep class io.legado.app.ui.watch.** { *; }
 -keep class io.legado.app.ui.book.read.page.** { *; }
 -keep class io.legado.app.ui.book.read.WatchReadMenu { *; }
+-keep class io.legado.app.ui.book.read.WatchReadSettingsMenu { *; }
 -keep class io.legado.app.databinding.** { *; }

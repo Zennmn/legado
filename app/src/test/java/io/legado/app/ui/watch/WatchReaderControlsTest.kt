@@ -53,6 +53,12 @@ class WatchReaderControlsTest {
     }
 
     @Test
+    fun windowBrightnessFollowsSystemWhenEnabled() {
+        assertEquals(-1f, WatchReaderControls.windowBrightness(128, followSystem = true))
+        assertEquals(128 / 255f, WatchReaderControls.windowBrightness(128, followSystem = false))
+    }
+
+    @Test
     fun progressTextHandlesEmptyChapterLists() {
         assertEquals("第 1/1 章", WatchReaderControls.chapterProgressText(0, 0))
         assertEquals("第 3/12 章", WatchReaderControls.chapterProgressText(2, 12))

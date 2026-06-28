@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/watch_settings_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/watch_oled_black"
+    android:clickable="true"
+    android:focusable="true">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:paddingStart="22dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="22dp"
+        android:paddingBottom="16dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/settings_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/watch_reader_settings"
+                android:textColor="@color/watch_text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:columnCount="3"
+                android:rowCount="3">
+
+                <TextView
+                    android:id="@+id/btn_text_down"
+                    style="@style/WatchReaderMenuButton"
+                    android:text="@string/watch_text_smaller" />
+
+                <TextView
+                    android:id="@+id/tv_text_size"
+                    style="@style/WatchReaderMenuValue"
+                    tools:text="18" />
+
+                <TextView
+                    android:id="@+id/btn_text_up"
+                    style="@style/WatchReaderMenuButton"
+                    android:text="@string/watch_text_larger" />
+
+                <TextView
+                    android:id="@+id/btn_line_down"
+                    style="@style/WatchReaderMenuButton"
+                    android:text="@string/watch_minus" />
+
+                <TextView
+                    android:id="@+id/tv_line_spacing"
+                    style="@style/WatchReaderMenuValue"
+                    tools:text="12" />
+
+                <TextView
+                    android:id="@+id/btn_line_up"
+                    style="@style/WatchReaderMenuButton"
+                    android:text="@string/watch_plus" />
+
+                <TextView
+                    android:id="@+id/btn_brightness_down"
+                    style="@style/WatchReaderMenuButton"
+                    android:text="@string/watch_brightness_down" />
+
+                <TextView
+                    android:id="@+id/tv_brightness"
+                    style="@style/WatchReaderMenuValue"
+                    tools:text="自动" />
+
+                <TextView
+                    android:id="@+id/btn_brightness_up"
+                    style="@style/WatchReaderMenuButton"
+                    android:text="@string/watch_brightness_up" />
+            </GridLayout>
+
+            <TextView
+                android:id="@+id/btn_brightness_follow_system"
+                android:layout_width="128dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textColor="@color/watch_text_primary"
+                android:textSize="13sp"
+                tools:text="跟随亮度：开" />
+
+            <TextView
+                android:id="@+id/btn_reset_black"
+                android:layout_width="88dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/watch_setting_reset_black"
+                android:textColor="@color/watch_text_primary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

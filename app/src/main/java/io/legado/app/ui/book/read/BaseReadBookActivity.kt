@@ -51,7 +51,7 @@ abstract class BaseReadBookActivity :
     override val viewModel by viewModels<ReadBookViewModel>()
     protected open val useWatchReaderUi: Boolean = false
     protected val menuLayoutIsVisible
-        get() = bottomDialog > 0 || binding.readMenu.isVisible || binding.searchMenu.bottomMenuVisible
+        get() = bottomDialog > 0 || binding.readMenu.isVisible || binding.readSettingsMenu.isVisible || binding.searchMenu.bottomMenuVisible
 
     var bottomDialog = 0
         set(value) {

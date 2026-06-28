@@ -1358,12 +1358,15 @@
     <string name="watch_text_larger">A+</string>
     <string name="watch_brightness_down">暗</string>
     <string name="watch_brightness_up">亮</string>
+    <string name="watch_auto">自动</string>
     <string name="watch_oled_reset">纯黑</string>
     <string name="watch_toc_title">目录</string>
     <string name="watch_toc_empty">没有目录</string>
     <string name="watch_setting_text_size">字号</string>
     <string name="watch_setting_line_spacing">行距</string>
     <string name="watch_setting_brightness">亮度</string>
+    <string name="watch_follow_system_on">跟随系统亮度：开</string>
+    <string name="watch_follow_system_off">跟随系统亮度：关</string>
     <string name="watch_setting_reset_black">重置纯黑</string>
     <string name="watch_minus">-</string>
     <string name="watch_plus">+</string>

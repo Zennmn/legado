@@ -89,6 +89,7 @@ import io.legado.app.utils.sysScreenOffTime
 import io.legado.app.utils.throttle
 import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.visible
+import androidx.core.view.isVisible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
@@ -98,7 +99,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
-import io.legado.app.ui.book.read.config.WatchReaderSettingsDialog
 import io.legado.app.ui.watch.WatchReaderDefaults
 import io.legado.app.ui.watch.toc.WatchTocActivityResult
 
@@ -171,7 +171,9 @@ class ReadBookActivity : BaseReadBookActivity(),
         WatchReaderDefaults.apply()
         super.onActivityCreated(savedInstanceState)
         binding.root.setOnEdgeBack {
-            finish()
+            if (!closeWatchOverlays()) {
+                finish()
+            }
         }
         binding.cursorLeft.setColorFilter(accentColor)
         binding.cursorRight.setColorFilter(accentColor)
@@ -1043,18 +1045,34 @@ class ReadBookActivity : BaseReadBookActivity(),
      * 显示阅读样式配置
      */
     override fun showReadStyle() {
-        showDialogFragment<WatchReaderSettingsDialog>()
+        binding.readSettingsMenu.runMenuIn()
     }
 
     /**
      * 显示更多设置
      */
     override fun showMoreSetting() {
-        showDialogFragment<WatchReaderSettingsDialog>()
+        binding.readSettingsMenu.runMenuIn()
     }
 
     override fun showSearchSetting() {
-        showDialogFragment<WatchReaderSettingsDialog>()
+        binding.readSettingsMenu.runMenuIn()
+    }
+
+    private fun closeWatchOverlays(): Boolean {
+        return when {
+            binding.readSettingsMenu.isVisible -> {
+                binding.readSettingsMenu.runMenuOut()
+                true
+            }
+
+            binding.readMenu.isVisible -> {
+                binding.readMenu.runMenuOut()
+                true
+            }
+
+            else -> false
+        }
     }
 
     /**

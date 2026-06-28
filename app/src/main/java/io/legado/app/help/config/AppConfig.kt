@@ -218,6 +218,12 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
             }
         }
 
+    var readBrightnessFollowSystem: Boolean
+        get() = appCtx.getPrefBoolean(PreferKey.readBrightnessFollowSystem, true)
+        set(value) {
+            appCtx.putPrefBoolean(PreferKey.readBrightnessFollowSystem, value)
+        }
+
     val textSelectAble: Boolean
         get() = appCtx.getPrefBoolean(PreferKey.textSelectAble, true)
 
@@ -823,4 +829,3 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
 
     val autoUpdateVariant get() = appCtx.getPrefBoolean("autoUpdateVariant", true)
 }
-

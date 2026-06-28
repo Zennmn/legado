@@ -1,5 +1,6 @@
 package io.legado.app.ui.watch
 
+import android.view.WindowManager
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -37,6 +38,14 @@ object WatchReaderControls {
 
     fun nextBrightness(current: Int, delta: Int): Int {
         return (current + delta).coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+    }
+
+    fun windowBrightness(readBrightness: Int, followSystem: Boolean): Float {
+        return if (followSystem) {
+            WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        } else {
+            (readBrightness / 255f).coerceAtLeast(0.004f).coerceAtMost(1f)
+        }
     }
 
     fun chapterProgressText(index: Int, total: Int): String {
