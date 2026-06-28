@@ -483,7 +483,7 @@ object ContentHelp {
         val patten = Pattern.compile(
             """
           (?<=["'”“])([^
-          \p{P}]{1,$WORD_MAX_LENGTH})(?=["'”“])
+          \p{Punct}]{1,$WORD_MAX_LENGTH})(?=["'”“])
           """.trimIndent()
         )
         //Pattern patten = Pattern.compile("(?<=[\"'”“])([^\n\"'”“]{1,16})(?=[\"'”“])");

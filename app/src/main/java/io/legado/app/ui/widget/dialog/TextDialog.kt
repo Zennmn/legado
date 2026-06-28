@@ -18,8 +18,6 @@ import io.legado.app.utils.setLayout
 import io.legado.app.utils.setMarkdown
 import io.legado.app.utils.viewbindingdelegate.viewBinding
 import io.noties.markwon.Markwon
-import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.html.HtmlPlugin
 import io.noties.markwon.image.glide.GlideImagesPlugin
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.delay
@@ -77,8 +75,6 @@ class TextDialog() : BaseDialogFragment(R.layout.dialog_text_view) {
                     val markdown = withContext(IO) {
                         markwon = Markwon.builder(requireContext())
                             .usePlugin(GlideImagesPlugin.create(Glide.with(requireContext())))
-                            .usePlugin(HtmlPlugin.create())
-                            .usePlugin(TablePlugin.create(requireContext()))
                             .build()
                         markwon.toMarkdown(content)
                     }

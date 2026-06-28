@@ -47,7 +47,7 @@ object AppPattern {
     /**
      * 所有标点
      */
-    val bdRegex = Regex("(\\p{P})+")
+    val bdRegex = Regex("(\\p{Punct})+")
 
     /**
      * 换行
@@ -57,7 +57,7 @@ object AppPattern {
     /**
      * 不发音段落判断
      */
-    val notReadAloudRegex = Regex("^(\\s|\\p{C}|\\p{P}|\\p{Z}|\\p{S})+$")
+    val notReadAloudRegex = Regex("^(\\s|\\p{C}|\\p{Punct}|\\p{Z}|\\p{S})+$")
 
     val xmlContentTypeRegex = "(application|text)/\\w*\\+?xml.*".toRegex()
 

@@ -74,7 +74,7 @@ class TextChapterLayout(
     private val bookContent: BookContent,
 ) {
 
-    private val paramPattern = Pattern.compile(",\\{.*}$")
+    private val paramPattern = Pattern.compile(",(?=[{].*$)")
 
     @Volatile
     private var listener: LayoutProgressListener? = textChapter

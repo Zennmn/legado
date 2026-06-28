@@ -21,9 +21,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.net.ConnectivityManager
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
@@ -35,17 +33,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import io.legado.app.R
 import io.legado.app.constant.AppConst
 import io.legado.app.data.entities.Book
-import io.legado.app.help.IntentHelp
 import io.legado.app.ui.book.read.ReadBookActivity
 import splitties.systemservices.clipboardManager
-import splitties.systemservices.connectivityManager
 import splitties.systemservices.uiModeManager
 import java.io.File
-import java.io.FileOutputStream
 import kotlin.system.exitProcess
 
 inline fun <reified A : Activity> Context.startActivity(configIntent: Intent.() -> Unit = {}) {
@@ -265,35 +259,6 @@ fun Context.share(file: File, type: String = "text/*") {
     )
 }
 
-@SuppressLint("SetWorldReadable")
-fun Context.shareWithQr(
-    text: String,
-    title: String = getString(R.string.share),
-    errorCorrectionLevel: ErrorCorrectionLevel = ErrorCorrectionLevel.H,
-) {
-    val bitmap = QRCodeUtils.createQRCode(text, errorCorrectionLevel = errorCorrectionLevel)
-    if (bitmap == null) {
-        toastOnUi(R.string.text_too_long_qr_error)
-    } else {
-        try {
-            val file = File(externalCacheDir, "qr.png")
-            val fOut = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut)
-            fOut.flush()
-            fOut.close()
-            file.setReadable(true, false)
-            val contentUri = FileProvider.getUriForFile(this, AppConst.authority, file)
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtra(Intent.EXTRA_STREAM, contentUri)
-            intent.type = "image/png"
-            startActivity(Intent.createChooser(intent, title))
-        } catch (e: Exception) {
-            toastOnUi(e.localizedMessage ?: "ERROR")
-        }
-    }
-}
-
 fun Context.sendToClip(text: String) {
     val clipData = ClipData.newPlainText(null, text)
     clipboardManager.setPrimaryClip(clipData)
@@ -336,24 +301,6 @@ val Context.externalFiles: File
 val Context.externalCache: File
     get() = this.externalCacheDir ?: this.cacheDir
 
-fun Context.openUrl(url: String) {
-    try {
-        startActivity(IntentHelp.getBrowserIntent(url))
-    } catch (e: Exception) {
-        toastOnUi(e.localizedMessage ?: "open url error")
-        e.printOnDebug()
-    }
-}
-
-fun Context.openUrl(uri: Uri) {
-    try {
-        startActivity(IntentHelp.getBrowserIntent(uri))
-    } catch (e: Exception) {
-        toastOnUi(e.localizedMessage ?: "open url error")
-        e.printOnDebug()
-    }
-}
-
 @SuppressLint("ObsoleteSdkInt")
 fun Context.openFileUri(uri: Uri, type: String? = null) {
     val intent = Intent()
@@ -373,14 +320,6 @@ fun Context.openFileUri(uri: Uri, type: String? = null) {
         e.printOnDebug()
     }
 }
-
-@Suppress("DEPRECATION")
-val Context.isWifiConnect: Boolean
-    @SuppressLint("MissingPermission")
-    get() {
-        val info = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI)
-        return info?.isConnected == true
-    }
 
 val Context.isPad: Boolean
     get() {

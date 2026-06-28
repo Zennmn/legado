@@ -141,10 +141,6 @@ android {
         resources.excludes.add('META-INF/*')
     }
 
-    sourceSets {
-        // Adds exported schema location as test app assets.
-        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
-    }
     lint {
         checkDependencies = true
     }
@@ -164,7 +160,6 @@ dependencies {
     //coreLibraryDesugaring('com.android.tools:desugar_jdk_libs_nio:2.0.4')
     coreLibraryDesugaring(libs.desugar)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.androidTest)
     //kotlin
     //noinspection GradleDependency,DifferentStdlibGradleVersion
     implementation(libs.kotlin.stdlib)
@@ -191,7 +186,6 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.viewpager2)
-    implementation(libs.androidx.webkit)
     implementation(libs.androidx.documentfile)
 
     //google
@@ -213,65 +207,28 @@ dependencies {
     implementation(libs.room.ktx)
     //kapt("androidx.room:room-compiler:$room_version")
     ksp(libs.room.compiler)
-    androidTestImplementation(libs.room.testing)
 
     //liveEventBus
     implementation(libs.liveeventbus)
 
     //规则相关
-    implementation(libs.jsoup)
-    implementation(libs.json.path)
     implementation(project(path: ':modules:book'))
     implementation(project(path: ':modules:rhino'))
 
-    //网络
-    implementation(libs.okhttp)
-
     //Glide
     implementation(libs.glide.glide)
-    implementation(libs.glide.okhttp)
     ksp(libs.glide.ksp)
 
     //Svg
     implementation(libs.androidsvg)
-    //Glide svg plugin
-    implementation(libs.glide.svg)
-
-    //二维码
-    //noinspection GradleDependency
-    implementation(libs.zxing.lite)
 
     //颜色选择
     implementation(libs.colorpicker)
 
-    //压缩解压
-    implementation libs.libarchive
-
-    //apache
-    implementation(libs.commons.text)
-
     //MarkDown
     implementation(libs.markwon.core)
     implementation(libs.markwon.image.glide)
-    implementation(libs.markwon.ext.tables)
-    implementation(libs.markwon.html)
 
     //转换繁体
     implementation(libs.quick.chinese.transfer.core)
-
-    //加解密类库,有些书源使用
-    //noinspection GradleDependency,GradlePackageUpdate
-    implementation(libs.hutool.crypto)
-
-    implementation libs.glide.recyclerview
-
-    //LeakCanary, 内存泄露检测
-    //debugImplementation('com.squareup.leakcanary:leakcanary-android:2.7')
-
-    //com.github.AmrDeveloper:CodeView代码编辑已集成到应用内
-    //epubLib集成到应用内
-    // sora-editor代码编辑器,更丰富的编辑功能
-    implementation(platform(libs.soraEditor.bom))
-    implementation(libs.soraEditor.core)
-    implementation(libs.soraEditor.language.textmate)
 }

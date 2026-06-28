@@ -157,11 +157,17 @@ class TextFile(private var book: Book) {
      * 按规则解析目录
      */
     private fun analyze(rr: List<String>): Pair<ArrayList<BookChapter>, Int> {
-        val pattern = rr[0].toPattern(Pattern.MULTILINE)
-        val jsStr = rr.getOrNull(1)
         if (rr[0].isEmpty()) {
             return analyze()
         }
+        val pattern = try {
+            rr[0].toPattern(Pattern.MULTILINE)
+        } catch (e: PatternSyntaxException) {
+            AppLog.put("TXT目录规则正则语法错误\n$e", e)
+            book.tocUrl = ""
+            return analyze()
+        }
+        val jsStr = rr.getOrNull(1)
         lastVolumeTitle.value = ""
         val toc = arrayListOf<BookChapter>()
         var bookWordCount = 0

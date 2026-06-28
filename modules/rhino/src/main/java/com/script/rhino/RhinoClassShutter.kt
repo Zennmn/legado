@@ -131,9 +131,6 @@ object RhinoClassShutter : ClassShutter {
             Context::class.java,
             ObjectInputStream::class.java,
             ObjectOutputStream::class.java,
-            okio.FileSystem::class.java,
-            okio.FileHandle::class.java,
-            okio.Path::class.java,
             android.content.Context::class.java,
         ) + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             arrayOf(FileSystem::class.java, Path::class.java)
@@ -150,9 +147,6 @@ object RhinoClassShutter : ClassShutter {
             is Context,
             is ObjectInputStream,
             is ObjectOutputStream,
-            is okio.FileSystem,
-            is okio.FileHandle,
-            is okio.Path,
             is android.content.Context -> return false
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

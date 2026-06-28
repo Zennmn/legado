@@ -57,7 +57,7 @@ class ContentProcessor private constructor(
                 try {
                     val name = Pattern.quote(book.name)
                     val title = chapter.title.escapeRegex().replace(spaceRegex, "\\s*")
-                    val matcher = Pattern.compile("^(\\s|\\p{P}|${name})*${title}(\\s)*")
+                    val matcher = Pattern.compile("^(\\s|\\p{Punct}|${name})*${title}(\\s)*")
                         .matcher(mContent)
                     if (matcher.find()) {
                         mContent = mContent.substring(matcher.end())

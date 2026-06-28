@@ -4,20 +4,17 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.provider.Settings
 import androidx.annotation.Keep
-import cn.hutool.crypto.digest.DigestUtil
 import io.legado.app.BuildConfig
-import org.apache.commons.lang3.time.FastDateFormat
 import splitties.init.appCtx
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Suppress("ConstPropertyName")
 @SuppressLint("SimpleDateFormat")
 object AppConst {
 
     const val APP_TAG = "Legado"
-
-    const val channelIdDownload = "channel_download"
-    const val channelIdReadAloud = "channel_read_aloud"
-    const val channelIdWeb = "channel_web"
 
     const val UA_NAME = "User-Agent"
 
@@ -30,16 +27,16 @@ object AppConst {
     private const val BETA_SIGNATURE =
         "93A28468B0F69E8D14C8A99AB45841CEF902BBBA3761BBFEE02E67CBA801563E"
 
-    val timeFormat: FastDateFormat by lazy {
-        FastDateFormat.getInstance("HH:mm")
+    val timeFormat: SimpleDateFormat by lazy {
+        SimpleDateFormat("HH:mm", Locale.getDefault())
     }
 
-    val dateFormat: FastDateFormat by lazy {
-        FastDateFormat.getInstance("yyyy/MM/dd HH:mm")
+    val dateFormat: SimpleDateFormat by lazy {
+        SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault())
     }
 
-    val fileNameFormat: FastDateFormat by lazy {
-        FastDateFormat.getInstance("yy-MM-dd-HH-mm-ss")
+    val fileNameFormat: SimpleDateFormat by lazy {
+        SimpleDateFormat("yy-MM-dd-HH-mm-ss", Locale.getDefault())
     }
 
     const val imagePathKey = "imagePath"
@@ -86,7 +83,9 @@ object AppConst {
     private val sha256Signature: String by lazy {
         val packageInfo =
             appCtx.packageManager.getPackageInfo(appCtx.packageName, PackageManager.GET_SIGNATURES)
-        DigestUtil.sha256Hex(packageInfo.signatures!![0].toByteArray()).uppercase()
+        MessageDigest.getInstance("SHA-256")
+            .digest(packageInfo.signatures!![0].toByteArray())
+            .joinToString("") { "%02X".format(it.toInt() and 0xff) }
     }
 
     private val isOfficial = sha256Signature == OFFICIAL_SIGNATURE

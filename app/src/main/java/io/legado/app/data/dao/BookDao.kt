@@ -1,6 +1,7 @@
 package io.legado.app.data.dao
 
 import androidx.room.*
+import io.legado.app.constant.BookType
 import io.legado.app.data.entities.Book
 import kotlinx.coroutines.flow.Flow
 
@@ -10,7 +11,7 @@ interface BookDao {
     @Query("SELECT * FROM books order by durChapterTime desc")
     fun flowAll(): Flow<List<Book>>
 
-    @Query("SELECT * FROM books WHERE type & 4 > 0")
+    @Query("SELECT * FROM books WHERE type & ${BookType.local} > 0")
     fun flowLocal(): Flow<List<Book>>
 
     @get:Query("SELECT * FROM books")

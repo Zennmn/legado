@@ -99,7 +99,6 @@ import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import io.legado.app.ui.book.read.config.WatchReaderSettingsDialog
-import io.legado.app.ui.watch.EdgeSwipeBackLayout
 import io.legado.app.ui.watch.WatchReaderDefaults
 import io.legado.app.ui.watch.toc.WatchTocActivityResult
 
@@ -171,7 +170,7 @@ class ReadBookActivity : BaseReadBookActivity(),
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         WatchReaderDefaults.apply()
         super.onActivityCreated(savedInstanceState)
-        (binding.root as EdgeSwipeBackLayout).setOnEdgeBack {
+        binding.root.setOnEdgeBack {
             finish()
         }
         binding.cursorLeft.setColorFilter(accentColor)
@@ -228,8 +227,6 @@ class ReadBookActivity : BaseReadBookActivity(),
         upSystemUiVisibility()
         if (hasFocus) {
             binding.readMenu.upBrightnessState()
-        } else if (!menuLayoutIsVisible) {
-            ReadBook.cancelPreDownloadTask()
         }
     }
 
@@ -240,9 +237,6 @@ class ReadBookActivity : BaseReadBookActivity(),
     }
 
     override fun onTopResumedActivityChanged(isTopResumedActivity: Boolean) {
-        if (!isTopResumedActivity) {
-            ReadBook.cancelPreDownloadTask()
-        }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -271,7 +265,6 @@ class ReadBookActivity : BaseReadBookActivity(),
         autoPageStop()
         backupJob?.cancel()
         ReadBook.saveRead()
-        ReadBook.cancelPreDownloadTask()
         upSystemUiVisibility()
         justInitData = false
     }
@@ -318,7 +311,6 @@ class ReadBookActivity : BaseReadBookActivity(),
             R.id.menu_refresh_dur,
             R.id.menu_refresh_after,
             R.id.menu_refresh_all,
-            R.id.menu_download,
             R.id.menu_get_progress,
             R.id.menu_cover_progress,
             R.id.menu_simulated_reading,
@@ -417,7 +409,6 @@ class ReadBookActivity : BaseReadBookActivity(),
                 }
             }
 
-            R.id.menu_download -> showDownloadDialog()
             R.id.menu_add_bookmark -> addBookmark()
             R.id.menu_simulated_reading -> showSimulatedReading()
             R.id.menu_edit_content -> Unit
